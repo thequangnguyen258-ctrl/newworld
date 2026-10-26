@@ -33,6 +33,7 @@ desktop.ini
 *.db-journal
 *.db-wal
 *.db-shm
+~*
 
 # Local Godot headless testing env wrapper
 .godot_env/

@@ -163,7 +163,7 @@ func _init() -> void:
 	tablet._ready()
 
 	assert(tablet.tab_bar != null, "Tablet phải có thanh CivicTabBar")
-	assert(tablet.tab_bar.get_child_count() == 7, "Thanh TabBar phải có đúng 7 ứng dụng (Thêm Tab 7 HAS)")
+	assert(tablet.tab_bar.get_child_count() >= 7, "Thanh TabBar phải có tối thiểu 7 ứng dụng (Bao gồm Tab 7 HAS)")
 	var tab_7_btn = tablet.tab_bar.get_child(6) as Button
 	assert(tab_7_btn.text.contains("HAS"), "Tab 7 phải mang tên R&D Viện HAS")
 

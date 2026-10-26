@@ -228,7 +228,12 @@ func _process(delta: float) -> void:
 						player.remove_meta("nearby_buggy")
 
 func _physics_process(delta: float) -> void:
-	if not is_on_floor():
+	var ground_h: float = ModularNatureChunk.get_world_height(global_position.x, global_position.z)
+	if global_position.y <= ground_h + 0.35:
+		global_position.y = ground_h + 0.35
+		if velocity.y < 0.0:
+			velocity.y = 0.0
+	elif not is_on_floor():
 		velocity.y -= 15.0 * delta
 
 	if is_occupied:

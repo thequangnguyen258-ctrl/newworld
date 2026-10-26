@@ -349,6 +349,8 @@ func _process(delta: float) -> bool:
 
 			# BƯỚC 8: TIẾP CẬN & LÁI XE BUGGY ĐIỆN THỊ TRƯỞNG (60 KM/H)
 			print("\n[Bước 8] TIẾP CẬN & LÁI XE BUGGY ĐIỆN THỊ TRƯỞNG (10, 14):")
+			if player.has_method("end_life_activity"):
+				player.end_life_activity()
 			player.global_position = buggy.global_position + Vector3(0, 0, 2.5)
 
 			test_step = 16
@@ -360,7 +362,7 @@ func _process(delta: float) -> bool:
 				return false
 
 			var dist_buggy = player.global_position.distance_to(buggy.global_position)
-			print("  - Cự ly tới Xe Buggy Điện: %.2fm" % dist_buggy)
+			print("  - Cự ly tới Xe Buggy Điện: %.2fm (Player: %s, Buggy: %s)" % [dist_buggy, player.global_position, buggy.global_position])
 			assert(dist_buggy <= 6.0, "Player phải ở trong cự ly tương tác xe buggy!")
 			assert(buggy.prompt_3d.visible == true, "Bảng chữ 3D xe buggy [F/E] phải hiện lên!")
 

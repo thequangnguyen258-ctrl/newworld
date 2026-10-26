@@ -30,7 +30,7 @@ func _init() -> void:
 
 	player = main_world.find_child("Player", true, false)
 	hud = main_world.find_child("HUDOverlay", true, false)
-	world_manager = root.get_node_or_null("/root/WorldManager")
+	world_manager = root.get_node_or_null("WorldManager")
 
 	if player == null or hud == null:
 		printerr("❌ LỖI: Không tìm thấy Player hoặc HUDOverlay trong scene!")
@@ -41,9 +41,14 @@ func _init() -> void:
 	_run_tests()
 
 func _run_tests() -> void:
-	# Đợi scene tree ổn định
-	for i in range(10):
+	# Đợi scene tree và autoloads ổn định
+	for i in range(15):
 		await process_frame
+
+	world_manager = root.get_node_or_null("WorldManager")
+	if world_manager and world_manager.has_method("set_time_of_day"):
+		world_manager.set_time_of_day(10, 0)
+		print("  [Setup] Đã thiết lập giờ làm việc 10:00 sáng cho toàn đô thị.")
 
 	print("\n[BƯỚC 1] XÁC THỰC SỰ HIỆN DIỆN CỦA CÁC ĐẠI DIỆN NPC VÀ TRẠM TẠI 4 HUYỆN:")
 	
@@ -81,6 +86,9 @@ func _run_tests() -> void:
 	_assert(buggy_south != null, "Tìm thấy Xe Buggy Điện (Huyện Nam)")
 
 	print("\n[BƯỚC 2] TIẾP CẬN VÀ THU THẬP NGUYÊN LIỆU TẠI 4 HUYỆN:")
+	if world_manager and world_manager.has_method("set_time_of_day"):
+		world_manager.set_time_of_day(10, 0)
+	await process_frame
 
 	# 2.1 Huyện Đông - Thu thập lúa mì
 	player.global_position = st_wheat.global_position + Vector3(0.5, 0.0, 0.5)

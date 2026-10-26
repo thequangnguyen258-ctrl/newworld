@@ -60,7 +60,7 @@ var _saved_pilot_mask: int = 1
 func apply_flying_wear(speed: float, delta: float) -> void:
 	if abs(speed) <= 1.0:
 		return
-	var wear_factor: float = clampf(abs(speed) / max_speed, 0.2, 1.5)
+	var wear_factor: float = clampf(abs(speed) / maxf(cruise_speed, 1.0), 0.2, 1.5)
 	var reduction: float = 0.0
 	if is_inside_tree():
 		var rm = get_node_or_null("/root/ResearchManager")
@@ -455,10 +455,10 @@ func _process_parked_physics(delta: float) -> void:
 	if global_position.y > ground_h + 0.15:
 		velocity.y -= 9.8 * delta
 		move_and_slide()
-	apply_flying_wear(current_forward_speed, delta)
 	else:
 		global_position.y = ground_h + 0.15
 		velocity = Vector3.ZERO
+	apply_flying_wear(current_forward_speed, delta)
 
 func board(player: Node3D) -> void:
 	if is_occupied:

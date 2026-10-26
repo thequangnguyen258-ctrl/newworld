@@ -16,8 +16,22 @@ var _tween: Tween
 
 func _ready() -> void:
 	if proximity_area:
-		proximity_area.body_entered.connect(_on_body_entered)
-		proximity_area.body_exited.connect(_on_body_exited)
+		proximity_area.collision_layer = 1 | 2 | 4
+		proximity_area.collision_mask = 1 | 2 | 4
+		if not proximity_area.body_entered.is_connected(_on_body_entered):
+			proximity_area.body_entered.connect(_on_body_entered)
+		if not proximity_area.body_exited.is_connected(_on_body_exited):
+			proximity_area.body_exited.connect(_on_body_exited)
+
+func _process(_delta: float) -> void:
+	if not auto_open_on_proximity:
+		return
+	var player = get_tree().get_first_node_in_group("player")
+	if player and is_instance_valid(player):
+		var dist = global_position.distance_to(player.global_position)
+		if dist <= 3.5:
+			if not is_open:
+				open_door()
 
 func toggle_door() -> void:
 	if is_open:
