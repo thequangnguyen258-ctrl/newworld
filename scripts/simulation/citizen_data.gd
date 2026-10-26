@@ -11,6 +11,7 @@ const LIFE_STAGE_TRANG_NIEN: String = "TRANG_NIEN"
 @export var citizen_id: String = ""
 @export var citizen_name: String = "Cư Dân"
 @export var age: int = 22
+@export var gender: String = "Nam"
 @export var life_stage: String = LIFE_STAGE_THANH_NIEN
 @export var is_married: bool = false
 @export var needs_community_support: bool = false
