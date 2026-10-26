@@ -44,12 +44,25 @@ func _resolve_node_references() -> void:
 		if world_environment.environment.sky != null:
 			sky_material = world_environment.environment.sky.sky_material as ShaderMaterial
 
+func _get_world_manager() -> Node:
+	if is_inside_tree():
+		var wm = get_node_or_null("/root/WorldManager")
+		if wm != null:
+			return wm
+	if Engine.has_singleton("WorldManager"):
+		return Engine.get_singleton("WorldManager")
+	return null
+
 func _process(delta: float) -> void:
+	var wm = _get_world_manager()
+	if wm != null and "is_time_paused" in wm:
+		wm.is_time_paused = is_time_paused
 	if not is_time_paused:
-		if auto_sync_world_manager and Engine.has_singleton("WorldManager"):
-			var wm = Engine.get_singleton("WorldManager")
-			if wm != null and wm.has_method("get_time_of_day_hours"):
-				current_time_hours = wm.get_time_of_day_hours()
+		if wm != null and wm.has_method("get_time_of_day_hours"):
+			current_time_hours = wm.get_time_of_day_hours()
+		elif wm != null and "current_hour" in wm and "current_minute" in wm:
+			var sub_min: float = (wm.second_accumulator / wm.REAL_SECONDS_PER_GAME_MINUTE) if ("second_accumulator" in wm and "REAL_SECONDS_PER_GAME_MINUTE" in wm) else 0.0
+			current_time_hours = fmod(float(wm.current_hour) + (float(wm.current_minute) + clampf(sub_min, 0.0, 0.99)) / 60.0, 24.0)
 		elif manual_hour >= 0.0:
 			current_time_hours = manual_hour
 		else:
@@ -63,29 +76,32 @@ func _process(delta: float) -> void:
 func get_current_time_hours() -> float:
 	if manual_hour >= 0.0:
 		return manual_hour
-	if auto_sync_world_manager and Engine.has_singleton("WorldManager"):
-		var wm = Engine.get_singleton("WorldManager")
-		if wm != null and wm.has_method("get_time_of_day_hours"):
-			return wm.get_time_of_day_hours()
+	var wm = _get_world_manager()
+	if wm != null and wm.has_method("get_time_of_day_hours"):
+		return wm.get_time_of_day_hours()
 	return current_time_hours
 
 func set_hour(hour_val: float) -> void:
-	current_time_hours = fmod(hour_val, 24.0)
-	if current_time_hours < 0.0:
-		current_time_hours += 24.0
-	manual_hour = current_time_hours
-	
-	if Engine.has_singleton("WorldManager"):
-		var wm = Engine.get_singleton("WorldManager")
-		var h = int(current_time_hours)
-		var m = int((current_time_hours - float(h)) * 60.0)
-		wm.set_time_of_day(h, m)
+	current_time_hours = fmod(hour_val + 24.0, 24.0)
+	manual_hour = -1.0 # Không khóa cứng thời gian sau khi chọn preset
+	var wm = _get_world_manager()
+	if wm != null:
+		var h_int: int = int(floor(current_time_hours))
+		var m_int: int = int(round((current_time_hours - float(h_int)) * 60.0)) % 60
+		if wm.has_method("set_time_of_day"):
+			wm.set_time_of_day(h_int, m_int)
+		else:
+			wm.current_hour = h_int
+			wm.current_minute = m_int
 		
 	_apply_time_of_day(current_time_hours)
 
 func skip_to_morning() -> void:
-	print("[DayNightController] 🌅 Kích hoạt tua nhanh qua đêm tới 06:00 sáng!")
+	var wm = _get_world_manager()
+	if wm != null and wm.has_method("skip_night_to_morning"):
+		wm.skip_night_to_morning(6)
 	set_hour(6.0)
+	print("[DayNightController] 🌅 Kích hoạt tua nhanh qua đêm tới 06:00 sáng!")
 
 # ------------------------------------------------------------------------------
 # TÍNH TOÁN & ÁP ĐẶT ÁNH SÁNG THEO THỜI GIAN TRONG NGÀY
@@ -296,6 +312,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F5, KEY_T:
 			print("[DayNightController] ⌨️ [F5/T] TUA NHANH QUA ĐÊM -> Đón bình minh 06:00!")
 			skip_to_morning()
-		KEY_F6:
+		KEY_F7:
 			is_time_paused = not is_time_paused
-			print("[DayNightController] ⌨️ [F6] Dừng/Tiếp tục thời gian: %s" % ("ĐÃ DỪNG" if is_time_paused else "ĐANG CHẠY"))
+			print("[DayNightController] ⌨️ [F7] Dừng/Tiếp tục thời gian: %s" % ("ĐÃ DỪNG" if is_time_paused else "ĐANG CHẠY"))

@@ -111,7 +111,7 @@ func initialize_capital_industry(citizen_registry: Dictionary) -> void:
 	register_location("WEST_ENERGY_DEPOT", "Kho năng lượng Huyện Tây", Vector2(-10.0, 0.0), {
 		"item_solar_battery": 1000
 	})
-	register_location("SOUTH_HARBOR", "Kho cảng Huyện Nam", Vector2(0.0, 10.0), {
+	register_location("SOUTH_HARBOR", "Kho cảng Huyện Nam", Vector2(0.0, 20.0), {
 		"item_fresh_fish": 1000
 	})
 	register_location("CAPITAL_LOGISTICS_DEPOT", "Bãi xe Công ty Vận tải Thủ Phủ", Vector2(0.15, 0.3))

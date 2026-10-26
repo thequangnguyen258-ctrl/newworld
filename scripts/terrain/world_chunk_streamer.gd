@@ -20,6 +20,7 @@ const UNLOAD_RADIUS: int = 6 # Khoảng cách dọn dẹp bộ nhớ
 var loaded_chunks: Dictionary = {} # Vector2i -> ModularNatureChunk
 var last_player_chunk: Vector2i = Vector2i(999999, 999999)
 var is_streaming_active: bool = true
+var _has_pending_chunks: bool = true
 
 func _ready() -> void:
 	if player_node == null:
@@ -44,7 +45,7 @@ func _process(_delta: float) -> void:
 		int(round(p_pos.z / CHUNK_SIZE))
 	)
 	
-	if cur_chunk != last_player_chunk:
+	if cur_chunk != last_player_chunk or _has_pending_chunks:
 		last_player_chunk = cur_chunk
 		_update_streaming(false)
 
@@ -65,12 +66,13 @@ func _update_streaming(force_immediate: bool = false) -> void:
 			
 	# 1. Sinh các Chunk mới cần tải
 	var spawn_count: int = 0
+	_has_pending_chunks = false
 	for coord in needed_coords:
 		if not loaded_chunks.has(coord):
 			_spawn_chunk(coord)
 			spawn_count += 1
 			if not force_immediate and spawn_count >= 4:
-				# Chia nhỏ tải để giữ mượt 60 FPS
+				_has_pending_chunks = true
 				break
 				
 	# 2. Dọn dẹp thu hồi các Chunk ở ngoài bán kính UNLOAD_RADIUS

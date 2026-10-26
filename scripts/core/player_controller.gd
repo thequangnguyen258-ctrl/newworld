@@ -175,13 +175,13 @@ func validate_saved_state(state: Dictionary) -> bool:
 		return false
 	if state.has("desk_work_progress") and not _is_finite_number(state["desk_work_progress"]):
 		return false
-	if state.has("completed_desk_sessions") and not state["completed_desk_sessions"] is int:
+	if state.has("completed_desk_sessions") and not (state["completed_desk_sessions"] is int or state["completed_desk_sessions"] is float):
 		return false
 	if not _is_finite_number(state.get("third_person_distance")) or not state.get("is_third_person") is bool:
 		return false
 	var saved_hotbar_index: Variant = state.get("selected_hotbar_index", -1)
 	var saved_lantern_is_lit: Variant = state.get("lantern_is_lit", true)
-	if not saved_hotbar_index is int or not saved_lantern_is_lit is bool:
+	if not (saved_hotbar_index is int or saved_hotbar_index is float) or not saved_lantern_is_lit is bool:
 		return false
 	var saved_outfit: Variant = state.get("current_outfit", "formal")
 	if not saved_outfit is String or not OUTFIT_DEFINITIONS.has(String(saved_outfit)):
@@ -537,13 +537,16 @@ func _input(event: InputEvent) -> void:
 		# Xác thực cự ly thực tế tránh stale metadata do dịch chuyển tọa độ
 		if nearby_npc and is_instance_valid(nearby_npc):
 			var dist_npc = global_position.distance_to(nearby_npc.global_position)
-			if dist_npc > 3.8:
+			if dist_npc > 6.5:
 				remove_meta("nearby_npc")
 				nearby_npc = null
 				
 		if nearby_st and is_instance_valid(nearby_st):
-			var dist_st = global_position.distance_to(nearby_st.global_position)
-			if dist_st > nearby_st.interaction_radius:
+			var r_max: float = nearby_st.interaction_radius if "interaction_radius" in nearby_st else 6.0
+			var dist_st: float = global_position.distance_to(nearby_st.global_position)
+			if nearby_st.is_in_group("elevators") or "cabin_platform" in nearby_st:
+				dist_st = Vector2(global_position.x - nearby_st.global_position.x, global_position.z - nearby_st.global_position.z).length()
+			if dist_st > r_max + 0.5:
 				remove_meta("nearby_interactive")
 				nearby_st = null
 
@@ -628,9 +631,10 @@ func _input(event: InputEvent) -> void:
 		var target_floor = -1
 		if event.is_action_pressed("ui_select"):
 			pass # placeholder
-		# Check physical number keys
+		# Check number keys (both physical and logical keycode)
 		if event is InputEventKey and event.pressed and not event.echo:
-			match event.physical_keycode:
+			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+			match code:
 				KEY_1: target_floor = 1
 				KEY_2: target_floor = 2
 				KEY_3: target_floor = 3
@@ -1109,11 +1113,11 @@ func _physics_process(delta: float) -> void:
 		# Lùi: S, Down Arrow
 		if Input.is_physical_key_pressed(KEY_S) or Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN) or Input.is_physical_key_pressed(KEY_DOWN):
 			fwd += 1.0
-		# Dạt Trái: A, Q (AZERTY)
-		if Input.is_physical_key_pressed(KEY_A) or Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_Q):
+		# Dạt Trái: A, Q (AZERTY), Left Arrow
+		if Input.is_physical_key_pressed(KEY_A) or Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_LEFT) or Input.is_physical_key_pressed(KEY_LEFT):
 			side -= 1.0
-		# Dạt Phải: D
-		if Input.is_physical_key_pressed(KEY_D) or Input.is_key_pressed(KEY_D):
+		# Dạt Phải: D, Right Arrow
+		if Input.is_physical_key_pressed(KEY_D) or Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT) or Input.is_physical_key_pressed(KEY_RIGHT):
 			side += 1.0
 		input_dir = Vector2(side, fwd).normalized()
 
@@ -1127,7 +1131,11 @@ func _physics_process(delta: float) -> void:
 		if current_stamina <= 0.0:
 			sprint_exhausted = true
 	else:
-		current_stamina = minf(max_stamina, current_stamina + stamina_recovery_rate * delta)
+		var wellness_boost: float = 0.0
+		var rm = get_node_or_null("/root/ResearchManager")
+		if rm != null and rm.has_method("get_wellness_stamina_boost"):
+			wellness_boost = rm.get_wellness_stamina_boost()
+		current_stamina = minf(max_stamina, current_stamina + stamina_recovery_rate * (1.0 + wellness_boost) * delta)
 	var speed: float = (sprint_speed if is_sprinting else walk_speed) * speed_multiplier
 
 	if direction:

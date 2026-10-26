@@ -35,7 +35,7 @@ const DailyScheduleManagerScript = preload("res://scripts/simulation/daily_sched
 @export var station_id: String = "fountain"
 @export var title_name: String = "Đài Phun Nước Ước Nguyện"
 @export var prompt_text: String = "🪙 [E] Thả Đồng Xu Ước Nguyện (Cầu Chúc An Lành)"
-@export var interaction_radius: float = 3.6
+@export var interaction_radius: float = 6.0
 
 var area: Area3D
 var prompt_label: Label3D
@@ -166,22 +166,39 @@ func interact(player: Node3D) -> void:
 	
 	match station_type:
 		StationType.FOUNTAIN:
-			if wm:
-				wm.deposit_city_tax(100.0)
-			if hud and hud.has_method("show_toast"):
-				hud.show_toast("🪙 Bạn đã thả đồng xu vào Đài Phun Nước! Toàn thành được chúc phước, cư dân hân hoan (+100Đ)!")
+			var inv = get_node_or_null("/root/InventoryManager")
+			if inv and inv.has_method("has_item") and inv.has_item("item_wishing_coin", 1):
+				inv.remove_item("item_wishing_coin", 1)
+				if wm and wm.has_method("deposit_city_tax"):
+					wm.deposit_city_tax(100.0)
+				if hud and hud.has_method("show_toast"):
+					hud.show_toast("⛲ Bạn đã thả 1 Đồng Xu Nguyện Ước xuống Đài Phun Nước! (+100 Đ Phước Lành Đô Thị)")
+			else:
+				if hud and hud.has_method("show_toast"):
+					hud.show_toast("⛲ Bạn cầu nguyện bình an bên Đài Phun Nước Pha Lê! (Cần Đồng Xu Nguyện Ước để nhận +100 Đ)")
 			if hud and hud.has_method("mark_quest_done"):
 				hud.mark_quest_done("quest_fountain")
 				
 		StationType.BAKERY:
+			if player and player.has_method("heal"):
+				player.heal(50.0)
+			if player and player.has_method("restore_stamina"):
+				player.restore_stamina(50.0)
+			var inv = get_node_or_null("/root/InventoryManager")
+			if inv and inv.has_method("add_item"):
+				inv.add_item("item_fresh_bread", 1)
 			if hud and hud.has_method("show_toast"):
-				hud.show_toast("🥖 Bác Nam trao bạn ổ bánh mì baguette nóng hổi! Mùi lúa mì thơm ngào ngạt (+50 Sinh Lực)!")
+				hud.show_toast("🥐 Bác Nam tặng bạn ổ Bánh Mì Nướng Bơ Mật Ong nóng hổi! (+50 Sinh Lực & Thể Lực)")
 			if hud and hud.has_method("mark_quest_done"):
 				hud.mark_quest_done("quest_bakery")
 				
 		StationType.CLINIC:
+			if player and player.has_method("heal"):
+				player.heal(100.0)
+			if player and player.has_method("restore_stamina"):
+				player.restore_stamina(100.0)
 			if hud and hud.has_method("show_toast"):
-				hud.show_toast("🌿 Chị Mai chăm sóc và mời bạn một tách trà thảo mộc! Toàn bộ mệt mỏi tiêu tan (+100% Sinh Lực)!")
+				hud.show_toast("💊 Chị Mai đã kiểm tra sức khỏe và trao Trà Thảo Dược Bình An! (+100% Sinh Lực & Thể Lực)")
 			if hud and hud.has_method("mark_quest_done"):
 				hud.mark_quest_done("quest_clinic")
 				
@@ -295,8 +312,11 @@ func interact(player: Node3D) -> void:
 				if hud and hud.has_method("show_toast"):
 					hud.show_toast("🕊️ [Đại Hội Lễ Tôn Giáo & Thánh Đường] Cử hành Thánh Lễ phụng vụ và ban phước lành toàn đô thị!")
 			elif station_id == "desk_cloud_cafe" or station_id == "station_cloud_cafe":
-				if "health" in player:
-					player.health = 100.0
+				if player:
+					if player.has_method("heal"):
+						player.heal(100.0)
+					if player.has_method("restore_stamina"):
+						player.restore_stamina(100.0)
 				var audio_synth = get_node_or_null("/root/AudioSynthesizer")
 				if audio_synth and audio_synth.has_method("play_fanfare_sound"):
 					audio_synth.play_fanfare_sound(player)

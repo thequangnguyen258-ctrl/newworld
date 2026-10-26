@@ -47,6 +47,12 @@ var citizen_data: CitizenData
 var citizen_manager: Node
 var use_lightweight_visuals: bool = false
 
+var _arm_l: Node3D = null
+var _arm_r: Node3D = null
+var _last_prompt_state: int = -1
+var _last_rendered_act: String = ""
+var _lod_accum: float = 0.0
+
 func _ready() -> void:
 	add_to_group("citizens")
 	home_position = global_position
@@ -73,6 +79,9 @@ func _ready() -> void:
 	set_physics_process(false)
 	
 	_build_visuals()
+	if visual_model:
+		_arm_l = visual_model.get_node_or_null("Arm_L") as Node3D
+		_arm_r = visual_model.get_node_or_null("Arm_R") as Node3D
 	_build_nameplate()
 	_build_interaction_area()
 	citizen_manager = get_tree().get_first_node_in_group("citizen_manager")
@@ -341,12 +350,34 @@ func _build_interaction_area() -> void:
 	interact_area.body_exited.connect(_on_body_exited)
 
 func _process(delta: float) -> void:
+	if player_ref == null or not is_instance_valid(player_ref):
+		player_ref = get_tree().get_first_node_in_group("player")
+
+	var dist: float = 9999.0
+	if player_ref and is_instance_valid(player_ref):
+		dist = global_position.distance_to(player_ref.global_position)
+
+	# Tier 3 (dist > 220m): Ẩn visual 3D để giải phóng GPU/CPU cho Intel Iris Xe
+	if dist > 220.0:
+		if visible:
+			visible = false
+		_lod_accum += delta
+		if _lod_accum < 1.0:
+			return
+		_lod_accum = 0.0
+		if has_daily_schedule:
+			_move_to_schedule_target(1.0)
+		return
+	else:
+		if not visible:
+			visible = true
+
 	time_elapsed += delta
 	if has_daily_schedule:
 		_move_to_schedule_target(delta)
-	
-	# 1. Micro-animation: Nhịp thở nhấp nhô nhẹ nhàng
-	if visual_model:
+
+	# 1. Micro-animation: Nhịp thở nhấp nhô nhẹ nhàng (chỉ chạy khi cự ly gần <= 45m)
+	if visual_model and dist <= 45.0:
 		var visual_pose := schedule_pose
 		var planar_distance := Vector2(global_position.x, global_position.z).distance_to(
 			Vector2(target_position.x, target_position.z)
@@ -359,38 +390,48 @@ func _process(delta: float) -> void:
 		var target_pose_rotation := -PI * 0.5 if visual_pose == "sleep" else 0.0
 		visual_model.rotation.x = lerp_angle(visual_model.rotation.x, target_pose_rotation, delta * 2.0)
 		_apply_activity_animation(visual_pose)
-		
-	# 2. Xoay người nhìn theo Thị Trưởng khi ở gần & Fallback cự ly an toàn
-	if player_ref == null or not is_instance_valid(player_ref):
-		player_ref = get_tree().get_first_node_in_group("player")
 
+	# 2. Xoay người nhìn theo Thị Trưởng & Quản lý Nameplate tối ưu
 	if player_ref and is_instance_valid(player_ref):
-		var dist = global_position.distance_to(player_ref.global_position)
-		interact_area.monitoring = dist <= 8.0
-		nameplate.visible = dist <= 40.0
-		var act_str = ("\n" + current_activity_icon + " " + current_activity) if current_activity != "" else ""
-		if dist <= 6.0:
-			nameplate.text = "✨ %s (%dt)%s\n🏷️ %s\n💬 [E] Trò Chuyện & Quyết Sách" % [citizen_name, age, act_str, job_title]
-			nameplate.modulate = Color(1.0, 0.90, 0.3)
-			var nearby_npc = player_ref.get_meta("nearby_npc") if player_ref.has_meta("nearby_npc") else null
-			if nearby_npc == null or not is_instance_valid(nearby_npc) or global_position.distance_squared_to(player_ref.global_position) < nearby_npc.global_position.distance_squared_to(player_ref.global_position):
-				player_ref.set_meta("nearby_npc", self)
-			
-			# Quay mặt về phía người chơi mượt mà
-			var look_target = player_ref.global_position
-			look_target.y = global_position.y
-			var target_rot_y = (look_target - global_position).normalized()
-			if target_rot_y.length_squared() > 0.01:
-				var desired_basis = Basis.looking_at(target_rot_y, Vector3.UP)
-				basis = basis.slerp(desired_basis, delta * 3.5)
-		else:
-			if player_ref.has_meta("nearby_npc") and player_ref.get_meta("nearby_npc") == self:
-				player_ref.remove_meta("nearby_npc")
-			nameplate.text = "%s (%dt)%s\n🏷️ %s" % [citizen_name, age, act_str, job_title]
-			nameplate.modulate = Color(1.0, 0.95, 0.85)
+		if interact_area:
+			interact_area.monitoring = dist <= 8.0
+		if nameplate:
+			var should_show_nameplate: bool = (dist <= 40.0)
+			if nameplate.visible != should_show_nameplate:
+				nameplate.visible = should_show_nameplate
+
+			if should_show_nameplate:
+				var prompt_state: int = 1 if dist <= 6.0 else 0
+				var act_str = ("\n" + current_activity_icon + " " + current_activity) if current_activity != "" else ""
+				if prompt_state != _last_prompt_state or act_str != _last_rendered_act:
+					_last_prompt_state = prompt_state
+					_last_rendered_act = act_str
+					if prompt_state == 1:
+						nameplate.text = "✨ %s (%dt)%s\n🏷️ %s\n💬 [E] Trò Chuyện & Quyết Sách" % [citizen_name, age, act_str, job_title]
+						nameplate.modulate = Color(1.0, 0.90, 0.3)
+					else:
+						nameplate.text = "%s (%dt)%s\n🏷️ %s" % [citizen_name, age, act_str, job_title]
+						nameplate.modulate = Color(1.0, 0.95, 0.85)
+
+				if prompt_state == 1:
+					var nearby_npc = player_ref.get_meta("nearby_npc") if player_ref.has_meta("nearby_npc") else null
+					if nearby_npc == null or not is_instance_valid(nearby_npc) or global_position.distance_squared_to(player_ref.global_position) < nearby_npc.global_position.distance_squared_to(player_ref.global_position):
+						player_ref.set_meta("nearby_npc", self)
+
+					# Quay mặt về phía người chơi mượt mà
+					var look_target = player_ref.global_position
+					look_target.y = global_position.y
+					var target_rot_y = (look_target - global_position).normalized()
+					if target_rot_y.length_squared() > 0.01:
+						var desired_basis = Basis.looking_at(target_rot_y, Vector3.UP)
+						basis = basis.orthonormalized().slerp(desired_basis.orthonormalized(), delta * 3.5)
+				else:
+					if player_ref.has_meta("nearby_npc") and player_ref.get_meta("nearby_npc") == self:
+						player_ref.remove_meta("nearby_npc")
 	elif interact_area:
 		interact_area.monitoring = false
-		nameplate.visible = false
+		if nameplate:
+			nameplate.visible = false
 
 func _move_to_schedule_target(delta: float) -> void:
 	if not has_daily_schedule:
@@ -414,9 +455,10 @@ func _move_to_schedule_target(delta: float) -> void:
 func _apply_activity_animation(pose: String = "") -> void:
 	if visual_model == null:
 		return
+	if _arm_l == null or _arm_r == null:
+		_arm_l = visual_model.get_node_or_null("Arm_L") as Node3D
+		_arm_r = visual_model.get_node_or_null("Arm_R") as Node3D
 	var active_pose := pose if not pose.is_empty() else schedule_pose
-	var arm_left := visual_model.get_node_or_null("Arm_L") as Node3D
-	var arm_right := visual_model.get_node_or_null("Arm_R") as Node3D
 	var left_angle := 0.0
 	var right_angle := 0.0
 	match active_pose:
@@ -435,10 +477,10 @@ func _apply_activity_animation(pose: String = "") -> void:
 		"social":
 			left_angle = sin(time_elapsed * 1.8) * 0.16
 			right_angle = cos(time_elapsed * 1.8) * 0.18
-	if arm_left:
-		arm_left.rotation.x = left_angle
-	if arm_right:
-		arm_right.rotation.x = right_angle
+	if _arm_l:
+		_arm_l.rotation.x = left_angle
+	if _arm_r:
+		_arm_r.rotation.x = right_angle
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):

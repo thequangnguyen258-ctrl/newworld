@@ -281,6 +281,27 @@ func _setup_hotbar_ui() -> void:
 	add_child(hotbar_panel)
 	_update_hotbar_display()
 
+var _cached_slot_style_active: StyleBoxFlat = null
+var _cached_slot_style_normal: StyleBoxFlat = null
+
+func update_hotbar_display() -> void:
+	_update_hotbar_display()
+
+func _get_slot_style(active: bool) -> StyleBoxFlat:
+	if _cached_slot_style_active == null:
+		_cached_slot_style_active = StyleBoxFlat.new()
+		_cached_slot_style_active.set_corner_radius_all(6)
+		_cached_slot_style_active.bg_color = Color(0.18, 0.28, 0.42, 0.98)
+		_cached_slot_style_active.border_color = Color(1.0, 0.85, 0.25, 1.0)
+		_cached_slot_style_active.set_border_width_all(2)
+
+		_cached_slot_style_normal = StyleBoxFlat.new()
+		_cached_slot_style_normal.set_corner_radius_all(6)
+		_cached_slot_style_normal.bg_color = Color(0.08, 0.13, 0.22, 0.9)
+		_cached_slot_style_normal.border_color = Color(0.25, 0.4, 0.6, 0.5)
+		_cached_slot_style_normal.set_border_width_all(1)
+	return _cached_slot_style_active if active else _cached_slot_style_normal
+
 func _update_hotbar_display() -> void:
 	if hotbar_slot_labels.is_empty():
 		return
@@ -294,20 +315,10 @@ func _update_hotbar_display() -> void:
 			hotbar_slot_labels[i].text = "x%d" % count
 			hotbar_slot_labels[i].modulate = Color(1.0, 0.95, 0.7) if count > 0 else Color(0.45, 0.5, 0.55)
 
-		# Cập nhật viền nút (selected vs normal)
+		# Cập nhật viền nút (selected vs normal) bằng StyleBox dùng chung đã cache
 		if i < hotbar_slot_buttons.size():
 			var btn = hotbar_slot_buttons[i]
-			var b_style = StyleBoxFlat.new()
-			b_style.set_corner_radius_all(6)
-			if i == hotbar_selected_index:
-				b_style.bg_color = Color(0.18, 0.28, 0.42, 0.98)
-				b_style.border_color = Color(1.0, 0.85, 0.25, 1.0)
-				b_style.set_border_width_all(2)
-			else:
-				b_style.bg_color = Color(0.08, 0.13, 0.22, 0.9)
-				b_style.border_color = Color(0.25, 0.4, 0.6, 0.5)
-				b_style.set_border_width_all(1)
-			btn.add_theme_stylebox_override("normal", b_style)
+			btn.add_theme_stylebox_override("normal", _get_slot_style(i == hotbar_selected_index))
 
 func set_selected_hotbar_slot(idx: int) -> void:
 	hotbar_selected_index = idx
@@ -1229,8 +1240,8 @@ func _setup_quest_tracker_ui() -> void:
 	quest_tracker_panel.anchor_bottom = 0.0
 	quest_tracker_panel.offset_left = -340.0
 	quest_tracker_panel.offset_right = -15.0
-	quest_tracker_panel.offset_top = 65.0
-	quest_tracker_panel.offset_bottom = 460.0
+	quest_tracker_panel.offset_top = 278.0
+	quest_tracker_panel.offset_bottom = 578.0
 
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 4)
@@ -1458,7 +1469,8 @@ func _refresh_hr_display() -> void:
 		{"name": "5. Ban Kỹ Thuật & Bảo Trì CSVC", "cert": "CERT_POWER_GRID / CERT_AUTO_MECHANIC"},
 		{"name": "6. Ban Kiểm Chuẩn CL & Môi Trường", "cert": "CERT_ENVIRONMENTAL_HEALTH"},
 		{"name": "7. Ban Truyền Thông, Media & Sự Kiện", "cert": "CERT_JOURNALISM_MEDIA / CERT_CINEMA_VIDEOGRAPHY"},
-		{"name": "8. Ban Mục Vụ, Tư Vấn Tâm Lý & Hòa Bình", "cert": "CERT_DIVINE_SHEPHERD / CERT_MEDICINE_GENERAL"}
+		{"name": "8. Ban Mục Vụ, Tư Vấn Tâm Lý & Hòa Bình", "cert": "CERT_DIVINE_SHEPHERD / CERT_MEDICINE_GENERAL"},
+		{"name": "9. Ban Ca Ngợi, Âm Nhạc Phụng Vụ & Thờ Phượng", "cert": "CERT_SACRED_MUSIC / CERT_LITURGICAL_ARTS"}
 	]
 
 	for i in range(div_titles.size()):

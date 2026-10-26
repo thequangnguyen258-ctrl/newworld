@@ -101,7 +101,7 @@ func _generate_initial_citizens() -> void:
 				c.wallet = 1100.0
 			else:
 				c.servant_type = "PART_TIME"
-				c.salary = 320.0
+				# Rule #4: Tình nguyện viên Bán thời gian nhận lương từ nghề nghiệp thế tục, không ghi đè salary = 320.0
 				c.wallet = 700.0
 		else:
 			c.servant_type = "NONE"
@@ -110,6 +110,7 @@ func _generate_initial_citizens() -> void:
 		register_citizen(c)
 
 	_assign_households_and_relationships()
+	_rebuild_fellowship_registry()
 	citizen_population_updated.emit(citizen_registry.size())
 	print("[CitizenManager] Khởi tạo %d cư dân Thủ Phủ với danh sách họ tên Việt Nam và quy chuẩn tuổi mới." % citizen_registry.size())
 	if is_inside_tree():
@@ -125,6 +126,16 @@ func _sync_citizens_to_database() -> void:
 	var db_mgr = get_node_or_null("/root/DatabaseManager")
 	if db_mgr:
 		db_mgr.sync_citizens_batch(citizen_registry)
+
+func _rebuild_fellowship_registry() -> void:
+	for k in fellowship_registry.keys():
+		fellowship_registry[k].clear()
+	for cid in citizen_registry.keys():
+		var c: CitizenData = citizen_registry[cid]
+		c.update_life_stage()
+		var fg: String = c.fellowship_group
+		if fellowship_registry.has(fg):
+			fellowship_registry[fg].append(cid)
 
 func _build_vietnamese_name(index: int) -> String:
 	var surname = VIETNAMESE_SURNAMES[index % VIETNAMESE_SURNAMES.size()]
@@ -284,12 +295,12 @@ func get_home_position_for(citizen_id: String) -> Vector3:
 	elif citizen.home_district_id == "DISTRICT_NORTH_FOREST":
 		wx = clamp(wx, -240.0, 240.0)
 		wz = -10000.0 + clamp(wz, -260.0, 260.0)
-	elif citizen.home_district_id == "DISTRICT_WEST_VALLEY":
+	elif citizen.home_district_id == "DISTRICT_WEST_VALLEY" or citizen.home_district_id == "DISTRICT_WEST_INDUSTRY":
 		wx = -10000.0 + clamp(wx, -260.0, 260.0)
 		wz = clamp(wz, -220.0, 220.0)
-	elif citizen.home_district_id == "DISTRICT_SOUTH_PORT":
+	elif citizen.home_district_id == "DISTRICT_SOUTH_PORT" or citizen.home_district_id == "DISTRICT_SOUTH_COAST":
 		wx = clamp(wx, -240.0, 240.0)
-		wz = 10000.0 + clamp(wz, -260.0, 260.0)
+		wz = 20000.0 + clamp(wz, -260.0, 260.0)
 	return Vector3(wx, ModularNatureChunk.get_world_height(wx, wz), wz)
 
 func get_workplace_position_for(citizen_id: String) -> Vector3:
@@ -384,7 +395,11 @@ func _on_liturgy_ended(_day_name: String) -> void:
 func tick_macro_simulation(delta_day: float) -> void:
 	for c_id in citizen_registry.keys():
 		var citizen: CitizenData = citizen_registry[c_id]
-		citizen.tick_durability_and_wear(1.5 * delta_day)
+		var wear_reduction: float = 0.0
+		var rm = get_node_or_null("/root/ResearchManager")
+		if rm != null and rm.has_method("get_wear_and_tear_reduction"):
+			wear_reduction = rm.get_wear_and_tear_reduction()
+		citizen.tick_durability_and_wear(1.5 * delta_day * (1.0 - wear_reduction))
 		if citizen.age >= 18 and not citizen.job_role.is_empty() and citizen.job_role != "Chưa có việc":
 			var fin = citizen.process_salary_payment(citizen.salary)
 			var wm = get_node_or_null("/root/WorldManager")

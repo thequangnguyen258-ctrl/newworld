@@ -52,6 +52,22 @@ var tail_rotor_pivot: Node3D
 var turbo_nozzles: Array[MeshInstance3D] = []
 var turbo_lights: Array[OmniLight3D] = []
 
+var _saved_pilot_layer: int = 2
+var _saved_pilot_mask: int = 1
+@export var mechanical_wear: float = 0.0
+@export var wear_rate_per_sec: float = 0.004
+
+func apply_flying_wear(speed: float, delta: float) -> void:
+	if abs(speed) <= 1.0:
+		return
+	var wear_factor: float = clampf(abs(speed) / max_speed, 0.2, 1.5)
+	var reduction: float = 0.0
+	if is_inside_tree():
+		var rm = get_node_or_null("/root/ResearchManager")
+		if rm != null and rm.has_method("get_wear_and_tear_reduction"):
+			reduction = rm.get_wear_and_tear_reduction()
+	mechanical_wear = minf(1.0, mechanical_wear + wear_rate_per_sec * wear_factor * (1.0 - reduction) * delta)
+
 var spring_arm: SpringArm3D
 var chase_camera: Camera3D
 var interaction_area: Area3D
@@ -421,6 +437,7 @@ func _process_flying_physics(delta: float) -> void:
 			velocity.y = 0.0
 
 	move_and_slide()
+	apply_flying_wear(current_forward_speed, delta)
 
 func _process_parked_physics(delta: float) -> void:
 	target_rotor_rpm = 0.0 # Tắt máy khi không có người lái
@@ -438,6 +455,7 @@ func _process_parked_physics(delta: float) -> void:
 	if global_position.y > ground_h + 0.15:
 		velocity.y -= 9.8 * delta
 		move_and_slide()
+	apply_flying_wear(current_forward_speed, delta)
 	else:
 		global_position.y = ground_h + 0.15
 		velocity = Vector3.ZERO
@@ -453,8 +471,11 @@ func board(player: Node3D) -> void:
 	player.visible = false
 	player.set_physics_process(false)
 	player.set_process_unhandled_input(false)
-	if player is CharacterBody3D:
+	if player is CollisionObject3D:
+		_saved_pilot_layer = player.collision_layer
+		_saved_pilot_mask = player.collision_mask
 		player.collision_layer = 0
+		player.collision_mask = 0
 
 	# Kích hoạt camera trực thăng
 	if chase_camera:
@@ -497,8 +518,9 @@ func exit_helicopter() -> void:
 	player.visible = true
 	player.set_physics_process(true)
 	player.set_process_unhandled_input(true)
-	if player is CharacterBody3D:
-		player.collision_layer = 1
+	if player is CollisionObject3D:
+		player.collision_layer = _saved_pilot_layer if _saved_pilot_layer != 0 else 2
+		player.collision_mask = _saved_pilot_mask if _saved_pilot_mask != 0 else 1
 
 	# Chuyển camera về lại người chơi
 	if player.has_node("Head/SpringArm3D/Camera3D"):

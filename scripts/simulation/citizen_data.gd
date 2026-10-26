@@ -67,7 +67,7 @@ func update_life_stage() -> void:
 		fellowship_group = "AU_NHI"
 	elif is_married:
 		life_stage = LIFE_STAGE_TRANG_NIEN
-		fellowship_group = "TRANG_NIEN"
+		fellowship_group = "PHU_NU" if (gender == "Nữ" or gender == "FEMALE") else "TRANG_NIEN"
 	else:
 		life_stage = LIFE_STAGE_THANH_NIEN
 		fellowship_group = "THANH_NIEN"
@@ -133,5 +133,5 @@ func request_sabbatical_rest() -> void:
 func switch_to_part_time() -> void:
 	if is_church_servant:
 		servant_type = "PART_TIME"
-		salary = 180.0 # Thù lao phụ cấp tượng trưng
+		# Rule #4: NHVC Part-Time tình nguyện 100%, không nhận lương giáo vụ
 		status_updated.emit()

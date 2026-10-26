@@ -21,6 +21,8 @@ signal player_exited_buggy(player: Node3D)
 
 var is_occupied: bool = false
 var passenger_ref: Node3D = null
+var _saved_passenger_layer: int = 2
+var _saved_passenger_mask: int = 1
 var current_speed: float = 0.0
 var steer_angle: float = 0.0
 @export var mechanical_wear: float = 0.0 # Tỷ lệ hao mòn máy móc (0.0% -> 100.0%)
@@ -317,6 +319,12 @@ func board(player: Node3D) -> void:
 	if player.has_meta("nearby_buggy"):
 		player.remove_meta("nearby_buggy")
 
+	if player is CollisionObject3D:
+		_saved_passenger_layer = player.collision_layer
+		_saved_passenger_mask = player.collision_mask
+		player.collision_layer = 0
+		player.collision_mask = 0
+
 	if "visible" in player:
 		player.visible = false
 	if player.has_method("set_physics_process"):
@@ -342,6 +350,10 @@ func exit_buggy() -> void:
 
 	var exit_pos = global_position + global_transform.basis.x * 2.2 + Vector3(0, 0.5, 0)
 	passenger_ref.global_position = exit_pos
+
+	if passenger_ref is CollisionObject3D:
+		passenger_ref.collision_layer = _saved_passenger_layer if _saved_passenger_layer != 0 else 2
+		passenger_ref.collision_mask = _saved_passenger_mask if _saved_passenger_mask != 0 else 1
 
 	if "visible" in passenger_ref:
 		passenger_ref.visible = true

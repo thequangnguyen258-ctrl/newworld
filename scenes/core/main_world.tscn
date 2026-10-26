@@ -44,7 +44,6 @@ fog_light_color = Color(0.71085924, 0.517011, 0.66615176, 1)
 fog_density = 0.00033642596
 
 [node name="MainWorld" type="Node3D" unique_id=1212299507]
-transform = Transform3D(0.9999883, 0, -0.0048345434, 0, 1, 0, 0.0048345434, 0, 0.9999883, 0, 0, 0)
 script = ExtResource("1_mw")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1361505789]
@@ -62,11 +61,11 @@ script = ExtResource("11_dnc")
 world_environment = NodePath("../WorldEnvironment")
 directional_light = NodePath("../DirectionalLight3D")
 
-[node name="NaturalLandscape" type="Node3D" parent="." unique_id=233118791]
-script = ExtResource("12_lnd")
-
 [node name="Player" parent="." unique_id=79776001 instance=ExtResource("4_ply")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 601.2, 28)
+
+[node name="NaturalLandscape" type="Node3D" parent="." unique_id=233118791]
+script = ExtResource("12_lnd")
 
 [node name="Helicopter" parent="." unique_id=73636135 instance=ExtResource("13_heli")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 794.55, 130)

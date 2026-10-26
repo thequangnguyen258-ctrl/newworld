@@ -13,7 +13,8 @@ enum DivisionType {
 	MAINTENANCE_TECH,     # Ban Kỹ Thuật & Bảo Trì (CERT_POWER_GRID, CERT_AUTO_MECHANIC)
 	QUALITY_ENVIRONMENT,  # Ban Kiểm Chuẩn & Môi Trường (CERT_ENVIRONMENTAL_HEALTH)
 	MEDIA_EVENTS,         # Ban Truyền Thông & Sự Kiện (CERT_JOURNALISM_MEDIA, CERT_CINEMA_VIDEOGRAPHY)
-	PASTORAL_CARE_PEACE   # Ban Mục Vụ, Tâm Lý & Hòa Bình (CERT_DIVINE_SHEPHERD, CERT_MEDICINE_GENERAL)
+	PASTORAL_CARE_PEACE,  # Ban Mục Vụ, Tâm Lý & Hòa Bình (CERT_DIVINE_SHEPHERD, CERT_MEDICINE_GENERAL)
+	PRAISE_AND_WORSHIP    # Ban Ca Ngợi, Âm Nhạc Phụng Vụ & Thờ Phượng (Tầng 9 Mega Office)
 }
 
 @export var enterprise_id: String = ""
@@ -49,7 +50,8 @@ func _init_departments() -> void:
 		DivisionType.MAINTENANCE_TECH,
 		DivisionType.QUALITY_ENVIRONMENT,
 		DivisionType.MEDIA_EVENTS,
-		DivisionType.PASTORAL_CARE_PEACE
+		DivisionType.PASTORAL_CARE_PEACE,
+		DivisionType.PRAISE_AND_WORSHIP
 	]:
 		if not department_heads.has(div):
 			department_heads[div] = ""

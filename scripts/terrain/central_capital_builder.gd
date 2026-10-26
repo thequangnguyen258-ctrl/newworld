@@ -343,7 +343,7 @@ static func build_capital_complex() -> Node3D:
 	st_fountain.station_id = "fountain"
 	st_fountain.title_name = "Đài Phun Nước Ước Nguyện"
 	st_fountain.prompt_text = "🪙 [E] Thả Đồng Xu Ước Nguyện (Cầu Chúc Toàn Thành An Lành)"
-	st_fountain.interaction_radius = 5.2
+	st_fountain.interaction_radius = 6.5
 	st_fountain.position = Vector3(-195.0, 0.4, -72.0)
 	root.add_child(st_fountain)
 
@@ -395,7 +395,7 @@ static func build_capital_complex() -> Node3D:
 	st_bakery.station_id = "bakery"
 	st_bakery.title_name = "Tiệm Bánh Mì Bác Nam"
 	st_bakery.prompt_text = "🥖 [E] Nhận Bánh Mì Baguette Nóng Hổi (+50 Sinh Lực)"
-	st_bakery.interaction_radius = 3.8
+	st_bakery.interaction_radius = 6.0
 	st_bakery.position = Vector3(-195.0, 0.2, -24.0)
 	root.add_child(st_bakery)
 
@@ -445,7 +445,7 @@ static func build_capital_complex() -> Node3D:
 	st_clinic.station_id = "clinic"
 	st_clinic.title_name = "Trạm Xá Sinh Thái Chị Mai"
 	st_clinic.prompt_text = "🌿 [E] Uống Trà Thảo Mộc Chữa Lành (+100% Sinh Lực)"
-	st_clinic.interaction_radius = 3.8
+	st_clinic.interaction_radius = 6.0
 	st_clinic.position = Vector3(195.0, 0.2, -24.0)
 	root.add_child(st_clinic)
 
@@ -521,7 +521,7 @@ static func build_capital_complex() -> Node3D:
 	st_bell.station_id = "bell"
 	st_bell.title_name = "Dây Rung Chuông Hòa Bình"
 	st_bell.prompt_text = "🔔 [E] Kéo Dây Rung Chuông Hòa Bình (Ngân Vang 500 km²)"
-	st_bell.interaction_radius = 4.2
+	st_bell.interaction_radius = 6.0
 	st_bell.position = Vector3(195.0, 0.2, 65.6)
 	root.add_child(st_bell)
 
@@ -560,7 +560,7 @@ static func build_capital_complex() -> Node3D:
 	st_desk.station_id = "desk"
 	st_desk.title_name = "Bàn Sắc Lệnh Thị Trưởng"
 	st_desk.prompt_text = "🏛️ [E] Chọn: Ngồi làm việc hoặc Ký sắc lệnh"
-	st_desk.interaction_radius = 3.6
+	st_desk.interaction_radius = 6.0
 	st_desk.position = Vector3(-195.0, 0.2, 105.0)
 	root.add_child(st_desk)
 
@@ -641,7 +641,7 @@ static func build_capital_complex() -> Node3D:
 	st_pet.station_id = "petitions"
 	st_pet.title_name = "Bảng Tin Nguyện Vọng Cư Dân"
 	st_pet.prompt_text = "📜 [E] Xem Bảng Tin Nguyện Vọng Cư Dân 5 Huyện"
-	st_pet.interaction_radius = 4.2
+	st_pet.interaction_radius = 6.0
 	st_pet.position = Vector3(42.0, 0.2, -210.0)
 	root.add_child(st_pet)
 

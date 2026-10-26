@@ -267,6 +267,20 @@ func _load_from_database(db: Node) -> void:
 				unlocked_techs[key] = true
 			if int(r["is_deployed"]) == 1:
 				deployed_techs[key] = true
+	_sync_all_deployed_buffs()
+
+func _sync_all_deployed_buffs() -> void:
+	if is_inside_tree():
+		var wm = _get_world_manager()
+		if wm != null and "blessed_abundance_multiplier" in wm:
+			wm.blessed_abundance_multiplier = 1.60 + get_blessed_abundance_boost()
+		if has_node("/root/BuildingJobRegistry"):
+			var bjr = get_node("/root/BuildingJobRegistry")
+			if bjr != null:
+				if "blessed_abundance_multiplier" in bjr:
+					bjr.blessed_abundance_multiplier = 1.60 + get_blessed_abundance_boost()
+				if "tech_wear_reduction_ratio" in bjr:
+					bjr.tech_wear_reduction_ratio = get_wear_and_tear_reduction()
 
 ## Lưu trạng thái vào SQLite
 func save_research_state() -> void:
@@ -316,14 +330,22 @@ func advance_research_minute(minutes_count: int = 1) -> void:
 		var key = "%s_%d" % [active_branch_id, active_tier]
 		if not is_tech_unlocked(active_branch_id, active_tier):
 			current_progress_kbu += generated_kbu
-			var pct = clampf(float(current_progress_kbu) / float(required_kbu), 0.0, 1.0)
+			while active_tier <= 20 and current_progress_kbu >= required_kbu and not is_tech_unlocked(active_branch_id, active_tier):
+				var overflow_kbu: int = current_progress_kbu - required_kbu
+				var completed_tier = active_tier
+				_auto_complete_research(active_branch_id, completed_tier)
+				if completed_tier >= 20:
+					current_progress_kbu = 0
+					break
+				current_progress_kbu = overflow_kbu
+				required_kbu = get_tier_cost(active_branch_id, active_tier)
+				if required_kbu <= 0:
+					break
+			var pct = clampf(float(current_progress_kbu) / float(required_kbu), 0.0, 1.0) if required_kbu > 0 else 0.0
 			directive_progress_updated.emit(active_branch_id, active_tier, current_progress_kbu, required_kbu, pct)
 
-			if current_progress_kbu >= required_kbu:
-				_auto_complete_research(active_branch_id, active_tier)
-
 ## Chọn đề án trọng điểm của Thị Trưởng
-func select_active_directive(branch_id: String, tier: int) -> bool:
+func select_active_directive(branch_id: String, tier: int, preserve_progress: bool = false) -> bool:
 	var b_id = _normalize_branch_id(branch_id)
 	if not tech_catalog.has(b_id):
 		return false
@@ -332,7 +354,8 @@ func select_active_directive(branch_id: String, tier: int) -> bool:
 	
 	active_branch_id = b_id
 	active_tier = tier
-	current_progress_kbu = 0
+	if not preserve_progress:
+		current_progress_kbu = 0
 	save_research_state()
 	
 	var cost = get_tier_cost(b_id, tier)
@@ -385,7 +408,7 @@ func _auto_complete_research(branch_id: String, tier: int) -> void:
 	
 	# Tự động chuyển sang bậc tiếp theo nếu chưa đạt bậc 20
 	if tier < 20:
-		select_active_directive(b_id, tier + 1)
+		select_active_directive(b_id, tier + 1, true)
 
 ## Thị Trưởng bấm nút "Ban Hành Toàn Thành Phố" (City-Wide Blueprint Deployment)
 func deploy_blueprint_citywide(branch_id: String, tier: int) -> bool:

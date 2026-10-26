@@ -114,19 +114,30 @@ func _check_monthly_community_meetup() -> void:
 		monthly_community_meetup_started.emit(DAY_NAMES[current_day_index])
 
 func deposit_city_tax(amount: float) -> void:
-	treasury_city += amount
+	treasury_city = maxf(0.0, treasury_city + amount)
 	treasury_updated.emit(treasury_city, fund_tithe_church)
+
+func withdraw_city_budget(amount: float) -> bool:
+	if amount < 0.0 or treasury_city < amount:
+		return false
+	treasury_city -= amount
+	treasury_updated.emit(treasury_city, fund_tithe_church)
+	return true
 
 func withdraw_city_tax(amount: float) -> bool:
-	if treasury_city >= amount:
-		treasury_city -= amount
-		treasury_updated.emit(treasury_city, fund_tithe_church)
-		return true
-	return false
+	return withdraw_city_budget(amount)
 
 func deposit_church_tithe(amount: float) -> void:
-	fund_tithe_church += amount
+	# QUY TẮC TỐI THƯỢNG: Quỹ Dâng Hiến hoàn toàn tự nguyện, không bao giờ ép buộc
+	fund_tithe_church = maxf(0.0, fund_tithe_church + amount)
 	treasury_updated.emit(treasury_city, fund_tithe_church)
+
+func withdraw_church_tithe(amount: float) -> bool:
+	if amount < 0.0 or fund_tithe_church < amount:
+		return false
+	fund_tithe_church -= amount
+	treasury_updated.emit(treasury_city, fund_tithe_church)
+	return true
 
 func get_save_state() -> Dictionary:
 	var server := _get_timeline_server()
@@ -253,15 +264,30 @@ func skip_night_to_morning(target_hour: int = 6) -> void:
 
 var timeline_server_ref: Node = null
 
+func set_timeline_server(server: Node) -> void:
+	timeline_server_ref = server
+
 func _get_timeline_server() -> Node:
-	if timeline_server_ref != null:
+	# Tầng 1: Biến tham chiếu trực tiếp đã cache
+	if timeline_server_ref != null and is_instance_valid(timeline_server_ref):
 		return timeline_server_ref
+	# Tầng 2: Engine Singleton
 	if Engine.has_singleton("UnifiedTimelineServer"):
-		return Engine.get_singleton("UnifiedTimelineServer")
-	if is_inside_tree():
-		var tree = get_tree()
-		if tree and tree.root and tree.root.has_node("UnifiedTimelineServer"):
-			return tree.root.get_node("UnifiedTimelineServer")
+		timeline_server_ref = Engine.get_singleton("UnifiedTimelineServer")
+		return timeline_server_ref
+	# Tầng 3: SceneTree Root Autoload (/root/UnifiedTimelineServer)
+	var tree = Engine.get_main_loop() as SceneTree
+	if tree and tree.root:
+		var node = tree.root.get_node_or_null("UnifiedTimelineServer")
+		if node != null:
+			timeline_server_ref = node
+			return timeline_server_ref
+	# Tầng 4: Node anh em trong cùng Parent (phục vụ Headless Test Runner)
+	if is_inside_tree() and get_parent() != null:
+		var sibling = get_parent().get_node_or_null("UnifiedTimelineServer")
+		if sibling != null:
+			timeline_server_ref = sibling
+			return timeline_server_ref
 	return null
 
 func get_current_time_slot() -> int:

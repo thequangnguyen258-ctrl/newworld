@@ -464,11 +464,16 @@ func _get_research_manager() -> Node:
 	return null
 
 func _on_grant_scholarship_pressed() -> void:
+	var cm = get_node_or_null("/root/CitizenManager")
+	var wm = _get_world_manager()
+	if wm == null:
+		return
+	if not wm.has_method("withdraw_city_budget") or not wm.withdraw_city_budget(1000.0):
+		if status_feedback:
+			status_feedback.text = "⚠️ Ngân sách Thành phố không đủ 1.000 Đ để cấp học bổng!"
+		return
 	east_wheat_bottleneck = false
 	total_scholarships_granted += 10
-	var wm = _get_world_manager()
-	if wm:
-		wm.deposit_city_tax(-1000.0) # Trích 1.000Đ ngân sách đào tạo
 	_render_civic_page(2) # Refresh lại trang doanh nghiệp
 	print("[CivicOS] 🎓 Thị Trưởng đã phê duyệt hạn mức 10 suất học bổng CERT_AGRI_CROPS!")
 
@@ -740,11 +745,24 @@ func _create_treasury_trend_chart(city_val: float, tithe_val: float) -> Control:
 
 func _on_co_fund_project_pressed() -> void:
 	var wm = _get_world_manager()
-	if wm:
+	if wm == null:
+		return
+	if wm.treasury_city < 2500.0 or wm.fund_tithe_church < 2500.0:
+		if status_feedback:
+			status_feedback.text = "⚠️ Cần tối thiểu 2.500 Đ ở cả Kho bạc Thành phố và Quỹ Dâng hiến để đồng tài trợ!"
+		return
+	if wm.has_method("withdraw_city_budget"):
+		wm.withdraw_city_budget(2500.0)
+	elif wm.has_method("withdraw_city_tax"):
+		wm.withdraw_city_tax(2500.0)
+	else:
 		wm.deposit_city_tax(-2500.0)
+	if wm.has_method("withdraw_church_tithe"):
+		wm.withdraw_church_tithe(2500.0)
+	else:
 		wm.deposit_church_tithe(-2500.0)
-		_render_civic_page(4)
-		print("[CivicOS] 🤝 Đã đồng tài trợ 5.000Đ cho dự án nâng cấp cảnh quan cộng đồng!")
+	_render_civic_page(4)
+	print("[CivicOS] 🤝 Đã đồng tài trợ 5.000Đ cho dự án nâng cấp cảnh quan cộng đồng!")
 
 # ------------------------------------------------------------------------------
 # TRANG 6: GIAO THÔNG & PHỤNG VỤ (TRANSIT & LITURGY MONITOR)
@@ -985,7 +1003,7 @@ func _render_page_has_research(parent: Control) -> void:
 		{"id": "materials", "title": "🛡️ Vật Liệu Mới (-21% Wear)"},
 		{"id": "agri", "title": "🌾 Nông Nghiệp (+25% Yield)"},
 		{"id": "energy", "title": "⚡ Năng Lượng Gió (+21% Grid)"},
-		{"id": "automation", "title": "📦 Kho RAM & SCM (+21% Flow)"},
+		{"id": "robotics", "title": "🤖 Vật Liệu Mới & Tự Động Hóa (+21% Flow)"},
 		{"id": "wellness", "title": "💚 Sinh Thái & Sức Khỏe (+21%)"}
 	]
 
@@ -1537,9 +1555,9 @@ func _on_civic_locate_plot(target_pos: Vector3, plot_title: String) -> void:
 	# Phát signal fast_travel để các hệ thống khác biết
 	fast_travel_requested.emit(target_pos)
 
-	# Cập nhật GPS và chuyển về Tab Bản Đồ
+	# Cập nhật GPS và đóng bản đồ để chơi tiếp
 	_update_gps_display()
-	_on_tab_clicked(0)
+	close_macro_map()
 
 	# Thông báo HUD
 	var hud: Node = null
@@ -1547,3 +1565,7 @@ func _on_civic_locate_plot(target_pos: Vector3, plot_title: String) -> void:
 		hud = get_tree().get_first_node_in_group("hud")
 	if hud and hud.has_method("show_toast"):
 		hud.show_toast("📍 Đã định vị: %s" % plot_title, 3.0)
+
+func _exit_tree() -> void:
+	if Engine.time_scale != 1.0:
+		Engine.time_scale = 1.0

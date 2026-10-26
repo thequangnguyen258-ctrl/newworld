@@ -147,7 +147,7 @@ func _draw() -> void:
 		if w_dist > active_range * 1.05 and not is_macro_mode:
 			# Trong chế độ tầm gần, ghim icon ở mép radar nếu ở ngoài cự ly
 			var clamped_dir = w_offset.normalized()
-			var blip_screen = _world_to_radar(clamped_dir * active_range * 0.92, center)
+			var blip_screen = _world_to_radar(clamped_dir * (radar_radius * 0.90), center)
 			draw_circle(blip_screen, 4.0, dist["color"])
 			draw_string(default_font, blip_screen + Vector2(-6, -6), dist["icon"], HORIZONTAL_ALIGNMENT_CENTER, -1, 10, dist["color"])
 		else:
@@ -157,14 +157,14 @@ func _draw() -> void:
 				draw_string(default_font, blip_screen + Vector2(-6, -6), dist["icon"], HORIZONTAL_ALIGNMENT_CENTER, -1, 11, dist["color"])
 
 	# 6. VẼ TRỰC THĂNG & XE BUGGY (NẾU CÓ)
-	for heli in get_tree().get_nodes_in_group("helicopter"):
+	for heli in get_tree().get_nodes_in_group("helicopters"):
 		var heli_w = Vector2(heli.global_position.x, heli.global_position.z)
 		var offset = heli_w - p_world
 		var pt = _world_to_radar(offset * (radar_radius / active_range), center)
 		if (pt - center).length() <= radar_radius - 4.0:
 			draw_string(default_font, pt + Vector2(-5, 4), "🚁", HORIZONTAL_ALIGNMENT_CENTER, -1, 11, Color(1.0, 0.9, 0.2))
 
-	for buggy in get_tree().get_nodes_in_group("mayor_buggy"):
+	for buggy in get_tree().get_nodes_in_group("buggies"):
 		var buggy_w = Vector2(buggy.global_position.x, buggy.global_position.z)
 		var offset = buggy_w - p_world
 		var pt = _world_to_radar(offset * (radar_radius / active_range), center)
@@ -172,7 +172,7 @@ func _draw() -> void:
 			draw_string(default_font, pt + Vector2(-5, 4), "🚗", HORIZONTAL_ALIGNMENT_CENTER, -1, 11, Color(0.3, 1.0, 0.7))
 
 	# 7. VẼ CÁC TRẠM GIAO THÔNG MẠNG NHỆN
-	for st in get_tree().get_nodes_in_group("transit_stops"):
+	for st in get_tree().get_nodes_in_group("transit_stations"):
 		var st_w = Vector2(st.global_position.x, st.global_position.z)
 		var offset = st_w - p_world
 		var pt = _world_to_radar(offset * (radar_radius / active_range), center)

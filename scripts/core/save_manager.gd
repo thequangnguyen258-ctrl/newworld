@@ -91,7 +91,7 @@ func save_game(player: Node = null, world_manager: Node = null) -> bool:
 		return false
 	if not _write_payload(payload):
 		return false
-	var timeline_server: Node = world_manager.get("timeline_server_ref")
+	var timeline_server: Node = world_manager._get_timeline_server() if world_manager.has_method("_get_timeline_server") else world_manager.get("timeline_server_ref")
 	if timeline_server != null and timeline_server.has_method("save_timeline"):
 		timeline_server.save_timeline()
 	return true
@@ -168,7 +168,7 @@ func load_game(player: Node = null, world_manager: Node = null) -> bool:
 	return true
 
 func _merge_offline_progress(world_manager: Node, saved_world_state: Dictionary) -> void:
-	var timeline_server: Node = world_manager.get("timeline_server_ref")
+	var timeline_server: Node = world_manager._get_timeline_server() if world_manager.has_method("_get_timeline_server") else world_manager.get("timeline_server_ref")
 	if timeline_server == null or not bool(timeline_server.get("is_initialized")):
 		return
 	var saved_total := int(saved_world_state.get("total_game_minutes", -1))

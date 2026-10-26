@@ -138,7 +138,7 @@ func _build_distant_macro_terrain() -> void:
 			row.append(Vector3(wx, wy, wz))
 		grid_pts.append(row)
 		
-	# Sinh tam giác bề mặt
+	# Sinh tam giác bề mặt (khoét lỗ vùng lõi trung tâm [-250m, +250m] chống Z-fighting & kẹt collider hồ/suối)
 	for iz in range(quads_z):
 		var next_iz = iz + 1
 		for ix in range(quads_x):
@@ -148,6 +148,11 @@ func _build_distant_macro_terrain() -> void:
 			var v10 = grid_pts[iz][next_ix]
 			var v01 = grid_pts[next_iz][ix]
 			var v11 = grid_pts[next_iz][next_ix]
+
+			var cx = (v00.x + v11.x) * 0.5
+			var cz = (v00.z + v11.z) * 0.5
+			if abs(cx) < 250.0 and abs(cz) < 250.0:
+				continue
 			
 			st.add_vertex(v00)
 			st.add_vertex(v10)
@@ -587,10 +592,10 @@ func _build_showcase_housing() -> void:
 			"pos": Vector3(65.0, 0.0, -10050.0)
 		},
 
-		# --- HUYỆN TÂY THUNG LŨNG GIÓ (WEST VALLEY) ---
+		# --- HUYỆN TÂY KHU CÔNG NGHIỆP XANH (WEST INDUSTRY) ---
 		{
 			"plot_id": "plot_west_01_windmill",
-			"district_id": "DISTRICT_WEST_VALLEY",
+			"district_id": "DISTRICT_WEST_INDUSTRY",
 			"house_type": "VALLEY_WINDMILL_LOFT",
 			"title": "Nhà Gác Lửng Thung Lũng Gió Huyện Tây (Lô Mở Bán)",
 			"price": 4500.0,
@@ -602,7 +607,7 @@ func _build_showcase_housing() -> void:
 		},
 		{
 			"plot_id": "plot_west_02_studio",
-			"district_id": "DISTRICT_WEST_VALLEY",
+			"district_id": "DISTRICT_WEST_INDUSTRY",
 			"house_type": "STUDIO_APARTMENT",
 			"title": "Căn Hộ Nghệ Nhân Kỹ Nghệ Huyện Tây (Lô Mở Bán)",
 			"price": 2200.0,
@@ -613,10 +618,10 @@ func _build_showcase_housing() -> void:
 			"pos": Vector3(-10070.0, 0.0, 35.0)
 		},
 
-		# --- HUYỆN NAM CẢNG HÒA BÌNH (SOUTH BAY & PORT) ---
+		# --- HUYỆN NAM CẢNG HÒA BÌNH (SOUTH BAY & PORT - Z = 20,000m) ---
 		{
 			"plot_id": "plot_south_01_villa",
-			"district_id": "DISTRICT_SOUTH_PORT",
+			"district_id": "DISTRICT_SOUTH_COAST",
 			"house_type": "COASTAL_VILLA",
 			"title": "Biệt Thự Duyên Hải Vịnh Biển Huyện Nam (Lô Mở Bán)",
 			"price": 8500.0,
@@ -624,11 +629,11 @@ func _build_showcase_housing() -> void:
 			"status": housing_plot_script.PlotStatus.AVAILABLE,
 			"owner": "",
 			"land_deed": "SO_DO_TTG_SOUTH01_2026",
-			"pos": Vector3(25.0, 0.0, 10035.0)
+			"pos": Vector3(25.0, 0.0, 19965.0)
 		},
 		{
 			"plot_id": "plot_south_02_stilt",
-			"district_id": "DISTRICT_SOUTH_PORT",
+			"district_id": "DISTRICT_SOUTH_COAST",
 			"house_type": "LAKESIDE_STILT_HOUSE",
 			"title": "Nhà Sàn Sinh Thái Cửa Biển Huyện Nam (Lô Mở Bán)",
 			"price": 4200.0,
@@ -636,7 +641,7 @@ func _build_showcase_housing() -> void:
 			"status": housing_plot_script.PlotStatus.AVAILABLE,
 			"owner": "",
 			"land_deed": "SO_DO_TTG_SOUTH02_2026",
-			"pos": Vector3(65.0, 0.0, 10050.0)
+			"pos": Vector3(65.0, 0.0, 19965.0)
 		}
 	]
 

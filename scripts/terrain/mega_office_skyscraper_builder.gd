@@ -126,7 +126,7 @@ static func build_mega_skyscraper() -> Node3D:
 	st_holo.station_id = "holomap"
 	st_holo.title_name = "Sa Bàn 3D Hologram"
 	st_holo.prompt_text = "🗺️ [E] Kích Hoạt Sa Bàn 3D Hologram (Đại Thế Giới 500 km²)"
-	st_holo.interaction_radius = 4.8
+	st_holo.interaction_radius = 6.5
 	st_holo.position = Vector3(0.0, 0.4, 2.2)
 	f1.add_child(st_holo)
 
@@ -1520,7 +1520,7 @@ static func _add_desk_station(parent: Node3D, obj_name: String, pos: Vector3, st
 	st.station_id = st_id
 	st.title_name = title
 	st.prompt_text = prompt
-	st.interaction_radius = 3.6
+	st.interaction_radius = 6.5
 	st.position = Vector3(0.0, 0.1, 0.8)
 	desk_node.add_child(st)
 
