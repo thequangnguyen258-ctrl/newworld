@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://c6f37r9l1p4m2"]
+
+[ext_resource type="Script" path="res://scripts/interactive/door_controller.gd" id="1_dc"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_leaf"]
+size = Vector3(1, 2.2, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+albedo_color = Color(0.65, 0.45, 0.32, 1)
+roughness = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_leaf"]
+size = Vector3(1, 2.2, 0.08)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(1.8, 2.4, 2.2)
+
+[node name="DoorPortal" type="Node3D"]
+script = ExtResource("1_dc")
+
+[node name="DoorHingePivot" type="Node3D" parent="."]
+
+[node name="DoorLeaf" type="MeshInstance3D" parent="DoorHingePivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.1, 0)
+mesh = SubResource("BoxMesh_leaf")
+surface_material_override/0 = SubResource("StandardMaterial3D_wood")
+
+[node name="DoorCollision" type="StaticBody3D" parent="DoorHingePivot/DoorLeaf"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorHingePivot/DoorLeaf/DoorCollision"]
+shape = SubResource("BoxShape3D_leaf")
+
+[node name="InteractionTrigger" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.1, 0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionTrigger"]
+shape = SubResource("BoxShape3D_trigger")

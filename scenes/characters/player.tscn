@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://bp8v7x14q1k5a"]
+
+[ext_resource type="Script" uid="uid://dyvyyooddfply" path="res://scripts/core/player_controller.gd" id="1_pc"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
+albedo_color = Color(0.18, 0.38, 0.72, 1)
+roughness = 0.6
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vis"]
+material = SubResource("StandardMaterial3D_player")
+radius = 0.4
+height = 1.8
+
+[node name="Player" type="CharacterBody3D" unique_id=500894796]
+collision_layer = 2
+floor_max_angle = 1.0472
+floor_snap_length = 0.5
+script = ExtResource("1_pc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=599780745]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1030619214]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_vis")
+
+[node name="Head" type="Node3D" parent="." unique_id=1702293619]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Head" unique_id=1849201948]
+transform = Transform3D(1, 0, 0, 0, 0.978148, 0.207912, 0, -0.207912, 0.978148, 0, 0.2, 0)
+spring_length = 3.6
+margin = 0.25
+
+[node name="Camera3D" type="Camera3D" parent="Head/SpringArm3D" unique_id=1449433341]
+transform = Transform3D(1, 0, 0, 0, 0.99999964, 0, 0, 0, 0.99999964, -0.03786087, -0.0991199, -0.026234537)
+current = true
+
+[node name="InteractionRay" type="RayCast3D" parent="Head/SpringArm3D/Camera3D" unique_id=1232958266]
+target_position = Vector3(0, 0, -5)
+collide_with_areas = true

@@ -1,0 +1,159 @@
+[gd_scene format=3 uid="uid://dnar4k8l1w2s0"]
+
+[ext_resource type="Script" path="res://scripts/ui/macro_map_modal.gd" id="1_map"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_map_bg"]
+bg_color = Color(0.08, 0.12, 0.20, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.30, 0.75, 0.95, 0.85)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_detail"]
+bg_color = Color(0.12, 0.17, 0.28, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.40, 0.60, 0.85, 0.4)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="MacroMapModal" type="PanelContainer"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -330.0
+offset_right = 480.0
+offset_bottom = 330.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_map_bg")
+script = ExtResource("1_map")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🗺️ BẢN ĐỒ TOÀN CẢNH TÂN THẾ GIỚI (500 KM²)"
+
+[node name="Spacer" type="Control" parent="Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GPSLabel" type="Label" parent="Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.88, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "📍 GPS: Đang quét..."
+
+[node name="CloseButton" type="Button" parent="Margin/VBox/Header"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+text = "✕"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftPanel" type="VBoxContainer" parent="Margin/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.1
+theme_override_constants/separation = 8
+
+[node name="ListHeader" type="Label" parent="Margin/VBox/Content/LeftPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+text = "DANH BẠ 10 ĐỊA DANH CỐT LÕI (POIS):"
+
+[node name="POIList" type="ItemList" parent="Margin/VBox/Content/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 14
+
+[node name="RightPanel" type="VBoxContainer" parent="Margin/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.3
+theme_override_constants/separation = 12
+
+[node name="DetailContainer" type="PanelContainer" parent="Margin/VBox/Content/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_detail")
+
+[node name="DetailMargin" type="MarginContainer" parent="Margin/VBox/Content/RightPanel/DetailContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="DetailVBox" type="VBoxContainer" parent="Margin/VBox/Content/RightPanel/DetailContainer/DetailMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="POITitle" type="Label" parent="Margin/VBox/Content/RightPanel/DetailContainer/DetailMargin/DetailVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 16
+text = "🏛️ Đỉnh Núi Trung Tâm"
+
+[node name="POICoords" type="Label" parent="Margin/VBox/Content/RightPanel/DetailContainer/DetailMargin/DetailVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "📌 Vị trí: Huyện Đỉnh Vát | Tọa độ: (0, 600, 0)"
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/VBox/Content/RightPanel/DetailContainer/DetailMargin/DetailVBox"]
+layout_mode = 2
+
+[node name="POIDesc" type="Label" parent="Margin/VBox/Content/RightPanel/DetailContainer/DetailMargin/DetailVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_font_sizes/font_size = 14
+text = "Trung tâm thảo nguyên lộng gió, nơi các cư dân sinh thái quần tụ và dòng suối trong bắt đầu hành trình."
+autowrap_mode = 2
+
+[node name="StatusFeedback" type="Label" parent="Margin/VBox/Content/RightPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.95, 0.65, 1)
+horizontal_alignment = 1
+
+[node name="TravelButton" type="Button" parent="Margin/VBox/Content/RightPanel"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "🚀 DU HÀNH NHANH (FAST TRAVEL)"

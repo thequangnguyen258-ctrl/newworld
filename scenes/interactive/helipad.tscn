@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cx8km4h6j7u8e"]
+
+[ext_resource type="Script" path="res://scripts/interactive/helipad.gd" id="1_hlp"]
+
+[node name="Helipad" type="Node3D"]
+script = ExtResource("1_hlp")

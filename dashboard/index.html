@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tân Thế Giới — Bảng Điều Hành Thiết Kế & Bản Đánh Giá Chuyên Môn (Godot 4.6.2)</title>
+  <meta name="description" content="Ứng dụng trực quan hóa Concept, Bảng điều hành quy hoạch 5 huyện, Bộ giả lập phần cứng Intel Iris Xe và Cây công nghệ 20 bậc dự án game Tân Thế Giới.">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Dashboard Styling -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="dark-theme">
+  <!-- Dynamic Background Particles / Gradient Mesh -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Main App Shell -->
+  <div class="app-container">
+    
+    <!-- Top Header & Navigation -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 32 32" fill="none" class="logo-svg">
+              <circle cx="16" cy="16" r="14" stroke="url(#goldGradient)" stroke-width="2.5" />
+              <path d="M16 4V28M4 16H28M8 8L24 24M8 24L24 8" stroke="url(#cyanGradient)" stroke-width="1.5" stroke-linecap="round" />
+              <defs>
+                <linearGradient id="goldGradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#F59E0B" />
+                  <stop offset="1" stop-color="#D97706" />
+                </linearGradient>
+                <linearGradient id="cyanGradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38BDF8" />
+                  <stop offset="1" stop-color="#14B8A6" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1 class="brand-title">TÂN THẾ GIỚI</h1>
+            <span class="brand-subtitle">EXECUTIVE CONCEPT & DESIGN DASHBOARD • GODOT 4.6.2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <!-- Main Navigation Tabs -->
+        <nav class="nav-tabs" id="navTabs">
+          <button class="nav-tab active" data-tab="scorecard">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label">Bản Đánh Giá</span>
+            <span class="tab-badge score-badge">9.4/10</span>
+          </button>
+          <button class="nav-tab" data-tab="map">
+            <span class="tab-icon">🗺️</span>
+            <span class="tab-label">Địa Hình & Mạng Nhện</span>
+            <span class="tab-badge">5 Huyện</span>
+          </button>
+          <button class="nav-tab" data-tab="simulator">
+            <span class="tab-icon">💻</span>
+            <span class="tab-label">Giả Lập Iris Xe</span>
+            <span class="tab-badge perf-badge">60 FPS</span>
+          </button>
+          <button class="nav-tab" data-tab="tech-tree">
+            <span class="tab-icon">🔬</span>
+            <span class="tab-label">14 Khối & R&D</span>
+            <span class="tab-badge">20 Bậc</span>
+          </button>
+          <button class="nav-tab" data-tab="mcp">
+            <span class="tab-icon">🤖</span>
+            <span class="tab-label">Quy Trình Godot-MCP</span>
+            <span class="tab-badge">42 Tools</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <button class="icon-btn" id="audioToggleBtn" title="Bật/Tắt Âm Thanh Hiệu Ứng">
+          <span class="icon" id="audioIcon">🔊</span>
+        </button>
+        <button class="icon-btn" id="exportReportBtn" title="Tải Báo Cáo Markdown">
+          <span class="icon">📥</span>
+          <span class="btn-text">Xuất Báo Cáo</span>
+        </button>
+        <div class="status-pill status-ready">
+          <span class="status-dot"></span>
+          <span>SẴN SÀNG TRIỂN KHAI</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      
+      <!-- =================================================================== -->
+      <!-- TAB 1: EXECUTIVE SCORECARD (BẢN ĐÁNH GIÁ CHUYÊN MÔN) -->
+      <!-- =================================================================== -->
+      <section class="tab-pane active" id="pane-scorecard">
+        <div class="content-header">
+          <div>
+            <h2 class="pane-title">Bản Đánh Giá Chuyên Môn & Phản Hồi Toàn Diện</h2>
+            <p class="pane-desc">Đánh giá hệ thống game dưới góc nhìn Giám đốc Kỹ thuật & Lead Systems Designer</p>
+          </div>
+          <div class="score-card-hero">
+            <div class="hero-score-ring">
+              <svg viewBox="0 0 100 100" class="ring-svg">
+                <circle cx="50" cy="50" r="42" class="ring-bg" />
+                <circle cx="50" cy="50" r="42" class="ring-progress" stroke-dasharray="264" stroke-dashoffset="15.8" />
+              </svg>
+              <div class="score-text">
+                <span class="score-number">9.4</span>
+                <span class="score-max">/ 10</span>
+              </div>
+            </div>
+            <div class="hero-score-desc">
+              <span class="score-grade">XUẤT SẮC • TIÊU CHUẨN INDIE MASTERPIECE</span>
+              <span class="score-sub">Cân bằng hoàn mỹ giữa triết lý nhân văn và vòng lặp kinh tế tuần hoàn</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Core Pillars Grid -->
+        <h3 class="section-title">4 ĐIỂM SÁNG ĐỘT PHÁ CỦA THIẾT KẾ</h3>
+        <div class="pillars-grid">
+          
+          <div class="pillar-card">
+            <div class="pillar-icon-box gold">
+              <span>⚙️</span>
+            </div>
+            <div class="pillar-content">
+              <h4>1. Động Lực Kinh Tế "Hao Mòn Đồ Vật"</h4>
+              <p>Con người thanh xuân trường sinh nhưng đồ vật, ray tram, cáp treo, lò nướng và máy móc bị <strong>hao mòn cơ học</strong> theo thời gian. Sự lỗi thời công nghệ khi R&D phát triển tạo ra dòng việc làm và luân chuyển tài chính vĩnh viễn.</p>
+              <div class="pillar-tags">
+                <span class="tag">Object Wear & Tear</span>
+                <span class="tag">CERT_AUTO_MECHANIC</span>
+                <span class="tag">Kinh Tế Tuần Hoàn</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box teal">
+              <span>🏛️</span>
+            </div>
+            <div class="pillar-content">
+              <h4>2. Quản Trị Vĩ Mô — Không Vi Quản Lý</h4>
+              <p>Thị trưởng quản trị ở tầng vĩ mô qua Tablet Civic OS (cấp hạn ngạch học bổng, quy hoạch đất đai). <strong>Nội Các 9 Trưởng Ban</strong> và Trung Tâm Một Cửa 5 bước tự động hóa $100\%$ việc thụ lý thẻ căn cước và đơn cấp phép.</p>
+              <div class="pillar-tags">
+                <span class="tag">Macro Governance</span>
+                <span class="tag">Một Cửa 5 Bước</span>
+                <span class="tag">14.400 Dân Cư</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box violet">
+              <span>🕊️</span>
+            </div>
+            <div class="pillar-content">
+              <h4>3. Cơ Cấu NHVC & Hai Quỹ Tài Chính</h4>
+              <p><strong>Kho Bạc Đô Thị (5% thuế)</strong> tái đầu tư hạ tầng. <strong>Quỹ 1/10</strong> chi trả lương sung túc đồng nhất cho NHVC Toàn thời gian; NHVC Bán thời gian tự nguyện $100\%$, có nghề nghiệp riêng, chăm sóc theo mạng lưới 4 cấp.</p>
+              <div class="pillar-tags">
+                <span class="tag">Tithe Fund 1/10</span>
+                <span class="tag">NHVC Đồng Nhất</span>
+                <span class="tag">Tiền Thuật Toán 0% Đầu Cơ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box blue">
+              <span>🎨</span>
+            </div>
+            <div class="pillar-content">
+              <h4>4. Mỹ Thuật Anime Cel-Shaded Ghibli</h4>
+              <p>Tối ưu hóa triệt để bằng Toon Shading ấm áp, viền nét mảnh Inverted Hull và biển mây ở cao độ $+710\text{m}$. Loại bỏ hoàn toàn PBR nặng nề, vừa đạt đỉnh cao thẩm mỹ vừa duy trì $60\text{ FPS}$ trên Intel Iris Xe.</p>
+              <div class="pillar-tags">
+                <span class="tag">Cel-Shaded Ghibli</span>
+                <span class="tag">Shinkai Cloud Sea</span>
+                <span class="tag">Iris Xe Ready</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 5 Critical Risks & Verified Solutions Table -->
+        <h3 class="section-title">5 RỦI RO KỸ THUẬT CỐT TỬ & GIẢI PHÁP TRIỆT ĐỂ</h3>
+        <div class="table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Rủi Ro Kỹ Thuật</th>
+                <th>Mức Độ</th>
+                <th>Nguy Cơ Thực Tế</th>
+                <th>Giải Pháp Đã Kiểm Chứng Trong Dự Án</th>
+                <th>Trạng Thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Tắc Nghẽn Giờ Phụng Vụ</strong><br><small>11:40 - 14:00 Thứ 4 & CN</small></td>
+                <td><span class="badge badge-danger">NGHIÊM TRỌNG</span></td>
+                <td>Hàng ngàn NPC gọi NavigationAgent3D cùng lúc gây nghẽn CPU, tụt FPS.</td>
+                <td>Phân luồng 2 cấp về 4 Tòa Vệ Tinh; So le ca xuất phát (Staggered Dispatch); Chuyển sang Crowd Spline MultiMesh ở cự ly &gt;35m.</td>
+                <td><span class="badge badge-success">ĐÃ TÍCH HỢP</span></td>
+              </tr>
+              <tr>
+                <td><strong>2. Dung Lượng NavMesh Bản Đồ Lớn</strong><br><small>500 km² - 1500 km²</small></td>
+                <td><span class="badge badge-warning">CAO</span></td>
+                <td>Nướng NavMesh toàn bản đồ làm cạn kiệt RAM và treo engine Godot.</td>
+                <td>Tìm đường 2 cấp (Hierarchical Pathfinding): Vĩ mô dùng Đồ Thị Điểm Nút (5 Vành đai, 8 Nan hoa); Vi mô chỉ nướng Chunk quanh người chơi 150m.</td>
+                <td><span class="badge badge-success">ĐÃ TÍCH HỢP</span></td>
+              </tr>
+              <tr>
+                <td><strong>3. Băng Thông RAM Intel Iris Xe</strong><br><small>VRAM Chuyên Dụng 0 MB</small></td>
+                <td><span class="badge badge-danger">NGHIÊM TRỌNG</span></td>
+                <td>GPU chia sẻ RAM qua bus hệ thống; Draw calls &gt;1200 gây suy sụp hiệu năng.</td>
+                <td>Khóa chuẩn <code>gl_compatibility</code> (GLES3); MultiMeshInstance3D; Octahedral Impostor LOD cho rừng thông xa; Giới hạn bóng PSSM 60m.</td>
+                <td><span class="badge badge-success">ĐÃ TÍCH HỢP</span></td>
+              </tr>
+              <tr>
+                <td><strong>4. Trễ Chu Kỳ In Tiền (Bullwhip)</strong><br><small>Định giá theo kho RAM</small></td>
+                <td><span class="badge badge-info">TRUNG BÌNH</span></td>
+                <td>Biến động nông sản mùa vụ làm tiền tệ co thắt/lạm phát cục bộ.</td>
+                <td>Bộ lọc trung bình trượt giảm chấn (Damped Moving Average 7 ngày) kèm biên độ điều tiết tối đa &le; 3% mỗi phiên.</td>
+                <td><span class="badge badge-success">ĐÃ TÍCH HỢP</span></td>
+              </tr>
+              <tr>
+                <td><strong>5. Kẹt Phím Bộ Gõ Tiếng Việt</strong><br><small>Unikey / EVKey Telex</small></td>
+                <td><span class="badge badge-warning">CAO</span></td>
+                <td>Phím W, A, S, D biến thành ký tự tiếng Việt làm nhân vật đứng im.</td>
+                <td>Đăng ký song song cả keycode và physical_keycode trong project.godot; Hỗ trợ Input.is_physical_key_pressed() và 4 phím mũi tên (Rule 1).</td>
+                <td><span class="badge badge-success">ĐÃ TÍCH HỢP</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 2: INTERACTIVE SVG MAP & TRANSIT (ĐỊA HÌNH 5 HUYỆN) -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="pane-map">
+        <div class="content-header">
+          <div>
+            <h2 class="pane-title">Bản Đồ Địa Hình 5 Huyện & Giao Thông Mạng Nhện</h2>
+            <p class="pane-desc">Mô hình quy hoạch đô thị hướng tâm: 5 Vành Đai, 8 Trục Nan Hoa, 4 Tầng Cao Độ (+0m đến +710m) và Tỷ Lệ Thời Gian Vàng 1:20</p>
+          </div>
+          <div class="map-controls">
+            <button class="btn btn-secondary" id="zoomInBtn">🔍 Phóng To</button>
+            <button class="btn btn-secondary" id="zoomOutBtn">🔍 Thu Nhỏ</button>
+            <button class="btn btn-secondary" id="resetMapBtn">🔄 Mặc Định</button>
+          </div>
+        </div>
+
+        <div class="map-grid-layout">
+          <!-- Interactive Vector Map Viewport -->
+          <div class="map-viewport-card">
+            <div class="map-legend">
+              <span class="legend-item"><span class="legend-color core"></span> Đỉnh Vát (+710m)</span>
+              <span class="legend-item"><span class="legend-color ring"></span> 5 Tuyến Vành Đai</span>
+              <span class="legend-item"><span class="legend-color spoke"></span> 8 Tuyến Nan Hoa</span>
+              <span class="legend-item"><span class="legend-color poi"></span> 10 Điểm Cốt Lõi (POI)</span>
+            </div>
+
+            <div class="svg-map-wrapper" id="svgMapWrapper">
+              <!-- Inline Interactive SVG Map -->
+              <svg id="interactiveMap" viewBox="-600 -600 1200 1200" class="game-svg-map">
+                <defs>
+                  <radialGradient id="plateauGlow" cx="0%" cy="0%" r="50%">
+                    <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.35" />
+                    <stop offset="60%" stop-color="#F59E0B" stop-opacity="0.1" />
+                    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="ringBgGrad" cx="0%" cy="0%" r="50%">
+                    <stop offset="0%" stop-color="#1E293B" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+                  </radialGradient>
+                </defs>
+
+                <!-- Background Districts Sectors -->
+                <circle cx="0" cy="0" r="520" fill="url(#ringBgGrad)" stroke="#334155" stroke-width="2" />
+
+                <!-- District Sector Wedges (5 Districts) -->
+                <path d="M 0 0 L 0 -520 A 520 520 0 0 1 450 -260 Z" class="district-wedge wedge-east" data-district="east" />
+                <path d="M 0 0 L 450 -260 A 520 520 0 0 1 367 367 Z" class="district-wedge wedge-south" data-district="south" />
+                <path d="M 0 0 L 367 367 A 520 520 0 0 1 -367 367 Z" class="district-wedge wedge-west" data-district="west" />
+                <path d="M 0 0 L -367 367 A 520 520 0 0 1 -450 -260 Z" class="district-wedge wedge-north" data-district="north" />
+                <path d="M 0 0 L -450 -260 A 520 520 0 0 1 0 -520 Z" class="district-wedge wedge-north-alt" data-district="north" />
+
+                <!-- 5 Concentric Ring Roads (Vành Đai 1 -> 5) -->
+                <circle cx="0" cy="0" r="100" class="ring-road ring-1" data-ring="Vành Đai 1: Lõi Đỉnh Vát (Bán kính 400m)" />
+                <circle cx="0" cy="0" r="200" class="ring-road ring-2" data-ring="Vành Đai 2: Vách Núi & Sườn Dốc (Bán kính 1.500m)" />
+                <circle cx="0" cy="0" r="320" class="ring-road ring-3" data-ring="Vành Đai 3: Chân Núi & 4 Tòa Vệ Tinh (Bán kính 4.000m)" />
+                <circle cx="0" cy="0" r="420" class="ring-road ring-4" data-ring="Vành Đai 4: Vùng Trang Trại & Nhà Xưởng (Bán kính 8.000m)" />
+                <circle cx="0" cy="0" r="520" class="ring-road ring-5" data-ring="Vành Đai 5: Vành Đai Ngoại Vi & Cảng Biển (Bán kính 12.000m)" />
+
+                <!-- 8 Radial Spokes (Nan Hoa) -->
+                <g class="spoke-lines">
+                  <line x1="0" y1="0" x2="0" y2="-520" class="spoke-line" data-spoke="Nan Hoa Bắc (Đi Huyện Bắc & Onsen)" />
+                  <line x1="0" y1="0" x2="368" y2="-368" class="spoke-line" data-spoke="Nan Hoa Đông Bắc (Đi Rừng Thông)" />
+                  <line x1="0" y1="0" x2="520" y2="0" class="spoke-line" data-spoke="Nan Hoa Đông (Đi Đại Nông Trường Lúa Mì)" />
+                  <line x1="0" y1="0" x2="368" y2="368" class="spoke-line" data-spoke="Nan Hoa Đông Nam (Đi Cảng Hòa Bình)" />
+                  <line x1="0" y1="0" x2="0" y2="520" class="spoke-line" data-spoke="Nan Hoa Nam (Đi Cảng Cá & Duyên Hải)" />
+                  <line x1="0" y1="0" x2="-368" y2="368" class="spoke-line" data-spoke="Nan Hoa Tây Nam (Đi Cánh Đồng Gió)" />
+                  <line x1="0" y1="0" x2="-520" y2="0" class="spoke-line" data-spoke="Nan Hoa Tây (Đi Xưởng Cơ Khí Nặng)" />
+                  <line x1="0" y1="0" x2="-368" y2="-368" class="spoke-line" data-spoke="Nan Hoa Tây Bắc (Đi Vách Núi Leo Bộ)" />
+                </g>
+
+                <!-- High-Plateau Core Glow & Border -->
+                <circle cx="0" cy="0" r="100" fill="url(#plateauGlow)" class="plateau-glow-circle" />
+                <circle cx="0" cy="0" r="100" class="plateau-boundary" />
+
+                <!-- 10 Core POIs (Clickable Interactive Markers) -->
+                <g class="poi-markers">
+                  <!-- POI 1: Mega-Office Skyscraper (Center 0,0) -->
+                  <g class="poi-group" data-poi="1" transform="translate(0, 0)">
+                    <circle cx="0" cy="0" r="14" class="poi-pulse" />
+                    <circle cx="0" cy="0" r="8" class="poi-dot gold" />
+                    <text x="0" y="-14" class="poi-text" text-anchor="middle">TÒA MEGA-OFFICE</text>
+                  </g>
+
+                  <!-- POI 2: Cảng Hòa Bình (Southeast) -->
+                  <g class="poi-group" data-poi="2" transform="translate(350, 350)">
+                    <circle cx="0" cy="0" r="10" class="poi-pulse blue" />
+                    <circle cx="0" cy="0" r="6" class="poi-dot blue" />
+                    <text x="0" y="-12" class="poi-text" text-anchor="middle">CẢNG HÒA BÌNH</text>
+                  </g>
+
+                  <!-- POI 3: Đại Nông Trường Lúa Mì (East) -->
+                  <g class="poi-group" data-poi="3" transform="translate(380, 0)">
+                    <circle cx="0" cy="0" r="10" class="poi-pulse green" />
+                    <circle cx="0" cy="0" r="6" class="poi-dot green" />
+                    <text x="0" y="-12" class="poi-text" text-anchor="middle">NÔNG TRƯỜNG LÚA MÌ</text>
+                  </g>
+
+                  <!-- POI 4: Khu Onsen & Rừng Bắc (North) -->
+                  <g class="poi-group" data-poi="4" transform="translate(0, -380)">
+                    <circle cx="0" cy="0" r="10" class="poi-pulse teal" />
+                    <circle cx="0" cy="0" r="6" class="poi-dot teal" />
+                    <text x="0" y="-12" class="poi-text" text-anchor="middle">SUỐI KHOÁNG ONSEN</text>
+                  </g>
+
+                  <!-- POI 5: Xưởng Cơ Khí & Cánh Đồng Gió (West) -->
+                  <g class="poi-group" data-poi="5" transform="translate(-380, 0)">
+                    <circle cx="0" cy="0" r="10" class="poi-pulse orange" />
+                    <circle cx="0" cy="0" r="6" class="poi-dot orange" />
+                    <text x="0" y="-12" class="poi-text" text-anchor="middle">CÁNH ĐỒNG GIÓ & CƠ KHÍ</text>
+                  </g>
+
+                  <!-- POI 6: Cảng Cá & Duyên Hải (South) -->
+                  <g class="poi-group" data-poi="6" transform="translate(0, 420)">
+                    <circle cx="0" cy="0" r="10" class="poi-pulse cyan" />
+                    <circle cx="0" cy="0" r="6" class="poi-dot cyan" />
+                    <text x="0" y="-12" class="poi-text" text-anchor="middle">CẢNG CÁ DUYÊN HẢI</text>
+                  </g>
+
+                  <!-- POI 7: Trạm Cáp Treo Vách Đá (Northwest 1500m) -->
+                  <g class="poi-group" data-poi="7" transform="translate(-140, -140)">
+                    <circle cx="0" cy="0" r="8" class="poi-dot yellow" />
+                    <text x="0" y="-10" class="poi-text" text-anchor="middle">CÁP TREO VÁCH ĐÁ</text>
+                  </g>
+
+                  <!-- POI 8: Đại Thánh Đường Đỉnh Vát (Near Center) -->
+                  <g class="poi-group" data-poi="8" transform="translate(35, -45)">
+                    <circle cx="0" cy="0" r="8" class="poi-dot violet" />
+                    <text x="0" y="-10" class="poi-text" text-anchor="middle">ĐẠI THÁNH ĐƯỜNG</text>
+                  </g>
+
+                  <!-- POI 9: Nhà Hát & Phố Đi Bộ (Near Center West) -->
+                  <g class="poi-group" data-poi="9" transform="translate(-50, 40)">
+                    <circle cx="0" cy="0" r="8" class="poi-dot pink" />
+                    <text x="0" y="-10" class="poi-text" text-anchor="middle">NHÀ HÁT & PHỐ ĐI BỘ</text>
+                  </g>
+
+                  <!-- POI 10: Viện Hàn Lâm R&D Mega-Office (Top deck) -->
+                  <g class="poi-group" data-poi="10" transform="translate(0, -60)">
+                    <circle cx="0" cy="0" r="8" class="poi-dot teal" />
+                    <text x="0" y="-10" class="poi-text" text-anchor="middle">VIỆN HÀN LÂM R&D</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- District Details & Elevation Inspector Panel -->
+          <div class="map-sidebar">
+            <div class="info-card" id="poiDetailCard">
+              <h4 class="card-title" id="inspectorTitle">Chọn một POI hoặc Huyện trên bản đồ</h4>
+              <p class="card-desc" id="inspectorDesc">Nhấp vào các vòng tròn hoặc đường nan hoa để xem cự ly, độ cao, thời gian di chuyển và chức năng đô thị.</p>
+              
+              <div class="stats-mini-grid" id="inspectorStats">
+                <div class="mini-stat">
+                  <span class="stat-label">Độ Cao Địa Hình</span>
+                  <span class="stat-value" id="statElevation">+710 m</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="stat-label">Cự Ly Tới Trung Tâm</span>
+                  <span class="stat-value" id="statDistance">0 km</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="stat-label">Thời Gian Tram (1:20)</span>
+                  <span class="stat-value" id="statTransitTime">0 phút</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="stat-label">Chuyên Ngành Cốt Lõi</span>
+                  <span class="stat-value" id="statIndustry">Quản Trị Vĩ Mô</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4-Tier Elevation Cross-Section Diagram -->
+            <div class="elevation-card">
+              <h4 class="card-title">Mặt Cắt 4 Tầng Cao Độ Địa Hình</h4>
+              <div class="elevation-diagram">
+                <div class="elevation-tier tier-skydeck">
+                  <span class="tier-label">Sân Đỗ Trực Thăng Skydeck Tầng 15</span>
+                  <span class="tier-val">+724.6 m (+124.6m tòa nhà)</span>
+                </div>
+                <div class="elevation-tier tier-plateau">
+                  <span class="tier-label">Tầng 4: Cao Nguyên Đỉnh Vát (Quảng Trường & Lõi)</span>
+                  <span class="tier-val">+710 m (Biển mây Anime)</span>
+                </div>
+                <div class="elevation-tier tier-cliff">
+                  <span class="tier-label">Tầng 3: Vách Núi Dựng Đứng & Đường Mòn Leo Bộ Chữ S</span>
+                  <span class="tier-val">+500 m (Độ dốc &le; 20°)</span>
+                </div>
+                <div class="elevation-tier tier-valley">
+                  <span class="tier-label">Tầng 2: Thung Lũng Chân Núi & 4 Tòa Vệ Tinh</span>
+                  <span class="tier-val">+200 m (Trang trại & Xưởng)</span>
+                </div>
+                <div class="elevation-tier tier-coast">
+                  <span class="tier-label">Tầng 1: Duyên Hải Cảng Hòa Bình & Bến Cá</span>
+                  <span class="tier-val">+0 m (Mực nước biển)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Golden Ratio 1:20 Time Scale Calculator -->
+            <div class="calculator-card">
+              <h4 class="card-title">Bộ Quy Đổi Tỷ Lệ Thời Gian Vàng (1:20)</h4>
+              <p class="calc-sub">3.0 giây thực = 1 phút game • 72 phút thực = 24 giờ game</p>
+              <div class="calc-input-row">
+                <div class="input-col">
+                  <label>Giây Thực Tế:</label>
+                  <input type="number" id="realSecInput" value="300" min="1" step="1">
+                </div>
+                <div class="calc-arrow">➔</div>
+                <div class="input-col">
+                  <label>Phút Game Tương Đương:</label>
+                  <input type="text" id="gameMinOutput" value="100 phút (1h40m)" readonly>
+                </div>
+              </div>
+              <div class="calc-yield-box">
+                <span>Ước tính tích lũy thuế ngoại tuyến: </span>
+                <strong id="offlineYieldEstimate">+10.42 Đ</strong>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: INTEL IRIS XE HARDWARE BUDGET SIMULATOR -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="pane-simulator">
+        <div class="content-header">
+          <div>
+            <h2 class="pane-title">Bộ Giả Lập Phần Cứng Intel Iris Xe / UHD Graphics</h2>
+            <p class="pane-desc">Mô phỏng ngân sách Draw Calls, Triangles, Băng thông RAM và FPS theo thời gian thực (0MB Dedicated VRAM)</p>
+          </div>
+          <button class="btn btn-primary" id="resetSimBtn">Khôi Phục Mức Chuẩn 60 FPS</button>
+        </div>
+
+        <div class="simulator-layout">
+          <!-- Control Sliders & Toggles -->
+          <div class="sim-controls-card">
+            <h3 class="card-heading">THÔNG SỐ MÔ PHỎNG THỰC ĐỊA</h3>
+
+            <!-- Slider 1: Population -->
+            <div class="control-group">
+              <div class="control-label-row">
+                <label>Quy Mô Cư Dân Đang Hoạt Động (Citizens):</label>
+                <span class="control-val" id="valPopulation">2,400 dân</span>
+              </div>
+              <input type="range" id="sliderPopulation" min="100" max="14400" step="100" value="2400">
+              <div class="slider-marks">
+                <span>100 (Khởi đầu)</span>
+                <span>2.400 (Tiêu chuẩn)</span>
+                <span>7.200</span>
+                <span>14.400 (Cực đại)</span>
+              </div>
+            </div>
+
+            <!-- Slider 2: Streaming Radius -->
+            <div class="control-group">
+              <div class="control-label-row">
+                <label>Bán Kính Tải Chunk Thực Địa (Streaming Radius):</label>
+                <span class="control-val" id="valStreaming">1,500 m</span>
+              </div>
+              <input type="range" id="sliderStreaming" min="500" max="5000" step="250" value="1500">
+              <div class="slider-marks">
+                <span>500m (Tiết kiệm)</span>
+                <span>1.500m (Khuyên dùng)</span>
+                <span>3.000m</span>
+                <span>5.000m (Toàn cảnh)</span>
+              </div>
+            </div>
+
+            <!-- Weather Condition -->
+            <div class="control-group">
+              <label class="control-title">Hiệu Ứng Thời Tiết Đang Kích Hoạt:</label>
+              <div class="weather-btn-group" id="weatherButtonGroup">
+                <button class="weather-btn active" data-weather="sunny">☀️ Nắng Rực Rỡ</button>
+                <button class="weather-btn" data-weather="rain">🌧️ Mưa Rào Anime</button>
+                <button class="weather-btn" data-weather="mist">🌫️ Sương Mù Vách Đá</button>
+                <button class="weather-btn" data-weather="liturgy">🔔 Giờ Thánh Lễ (Đỉnh)</button>
+              </div>
+            </div>
+
+            <!-- Optimization Toggles -->
+            <div class="control-group">
+              <label class="control-title">Các Công Nghệ Tối Ưu Hóa Kích Hoạt:</label>
+              <div class="toggle-list">
+                <label class="toggle-item">
+                  <input type="checkbox" id="toggleMultiMesh" checked>
+                  <span class="toggle-box"></span>
+                  <span class="toggle-text">MultiMeshInstance3D cho Cây cỏ & Đồ lặp</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="toggleOctahedral" checked>
+                  <span class="toggle-box"></span>
+                  <span class="toggle-text">Octahedral Impostor LOD (Rừng thông xa 25km)</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="toggleShadow" checked>
+                  <span class="toggle-box"></span>
+                  <span class="toggle-text">Giới Hạn Bóng PSSM 60m (directional_shadow)</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="toggleCrowdSpline" checked>
+                  <span class="toggle-box"></span>
+                  <span class="toggle-text">Crowd Spline & Tắt Vi Vật Lý (&gt;35m)</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Real-Time Metrics & Gauge Output -->
+          <div class="sim-metrics-card">
+            <h3 class="card-heading">DỰ BÁO HIỆU NĂNG PHẦN CỨNG (INTEL IRIS XE)</h3>
+
+            <!-- FPS Main Gauge -->
+            <div class="fps-gauge-box">
+              <div class="fps-circle" id="fpsCircle">
+                <span class="fps-num" id="gaugeFpsNum">60</span>
+                <span class="fps-unit">FPS</span>
+              </div>
+              <div class="fps-status-text" id="fpsStatusText">HIỆU NĂNG HOÀN HẢO (60 FPS)</div>
+              <p class="fps-status-sub" id="fpsStatusSub">Không phát hiện hiện tượng nghẽn bus bộ nhớ. Game vận hành mượt mà.</p>
+            </div>
+
+            <!-- Metrics Bars Grid -->
+            <div class="metrics-bars-grid">
+              
+              <!-- Draw Calls Metric -->
+              <div class="metric-bar-item">
+                <div class="bar-label-row">
+                  <span>Draw Calls / Frame</span>
+                  <strong id="metricDrawCalls">520 / 1200</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill green" id="barDrawCalls" style="width: 43%;"></div>
+                </div>
+                <small class="bar-hint">Ngưỡng an toàn: 400 - 800 (Tối đa 1200)</small>
+              </div>
+
+              <!-- Triangles Count Metric -->
+              <div class="metric-bar-item">
+                <div class="bar-label-row">
+                  <span>Số Lượng Đa Giác (Triangles)</span>
+                  <strong id="metricTriangles">780,000 / 1.8M</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill green" id="barTriangles" style="width: 43%;"></div>
+                </div>
+                <small class="bar-hint">Ngưỡng an toàn: &le; 1.200.000 Tris</small>
+              </div>
+
+              <!-- VRAM Bandwidth Metric -->
+              <div class="metric-bar-item">
+                <div class="bar-label-row">
+                  <span>VRAM RAM Dùng Chung (Shared)</span>
+                  <strong id="metricVram">1.15 GB / 1.8 GB</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill teal" id="barVram" style="width: 63%;"></div>
+                </div>
+                <small class="bar-hint">Ngưỡng an toàn bus LPDDR4x/DDR4: &le; 1.8 GB</small>
+              </div>
+
+              <!-- Frame Time Metric -->
+              <div class="metric-bar-item">
+                <div class="bar-label-row">
+                  <span>Thời Gian Khung Hình (Frame Time)</span>
+                  <strong id="metricFrameTime">16.6 ms (Target 16.6ms)</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill blue" id="barFrameTime" style="width: 50%;"></div>
+                </div>
+                <small class="bar-hint">CPU: 6.2ms • GPU: 10.4ms</small>
+              </div>
+
+            </div>
+
+            <!-- Bottleneck Advisor Box -->
+            <div class="advisor-box" id="advisorBox">
+              <span class="advisor-icon">💡</span>
+              <div class="advisor-text" id="advisorText">
+                <strong>Chẩn Đoán Kỹ Thuật:</strong> Hệ thống đang hoạt động tối ưu trong ngân sách đồ họa Intel Iris Xe. Mọi cơ chế LoD và MultiMesh đang phát huy tác dụng triệt để.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 4: 14 CRAFT SECTORS & 20-TIER R&D TECH TREE -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="pane-tech-tree">
+        <div class="content-header">
+          <div>
+            <h2 class="pane-title">14 Khối Thủ Công & Cây R&D 20 Bậc Liên Tục</h2>
+            <p class="pane-desc">Chuỗi giá trị tuần hoàn, danh mục chứng chỉ CERT_* và cây công nghệ giảm 21% hao mòn máy móc</p>
+          </div>
+          <div class="sub-nav-tabs">
+            <button class="sub-tab active" data-sub="tech">🔬 Cây Công Nghệ R&D (20 Bậc)</button>
+            <button class="sub-tab" data-sub="crafts">🔨 14 Khối Ngành & Chứng Chỉ</button>
+          </div>
+        </div>
+
+        <!-- Sub-View 1: 20-Tier Continuous Tech Tree -->
+        <div class="sub-pane active" id="sub-tech">
+          <!-- Branch Filter Pills -->
+          <div class="branch-filter-row">
+            <button class="branch-pill active" data-branch="all">Tất Cả 5 Nhánh Mũi Nhọn</button>
+            <button class="branch-pill" data-branch="materials">⚙️ 1. Vật Liệu & Chống Mài Mòn (-21%)</button>
+            <button class="branch-pill" data-branch="agri">🌾 2. Nông Nghiệp & Đất Lành (+21%)</button>
+            <button class="branch-pill" data-branch="energy">⚡ 3. Năng Lượng Sạch SCADA (+21%)</button>
+            <button class="branch-pill" data-branch="robotics">🤖 4. Tự Động Hóa Nhân Đạo (+21%)</button>
+            <button class="branch-pill" data-branch="wellness">🌿 5. Y Học & Sinh Thái (+21%)</button>
+          </div>
+
+          <!-- Total Accumulative Buff Card -->
+          <div class="tech-accumulator-card">
+            <div class="accum-col">
+              <span class="accum-label">Giảm Tốc Độ Hao Mòn Cơ Học</span>
+              <strong class="accum-val gold" id="accumWearVal">-21.0%</strong>
+            </div>
+            <div class="accum-col">
+              <span class="accum-label">Hệ Số Bội Thu Đất Lành</span>
+              <strong class="accum-val green" id="accumAgriVal">1.60x ➔ 1.85x (+21%)</strong>
+            </div>
+            <div class="accum-col">
+              <span class="accum-label">Hiệu Suất Năng Lượng Đô Thị</span>
+              <strong class="accum-val teal" id="accumEnergyVal">+21.0%</strong>
+            </div>
+            <div class="accum-col">
+              <span class="accum-label">Hiệu Quả SCM Kho RAM</span>
+              <strong class="accum-val blue" id="accumScramVal">+21.0%</strong>
+            </div>
+            <div class="accum-col">
+              <span class="accum-label">Chỉ Số Hòa Hợp Xã Hội</span>
+              <strong class="accum-val violet" id="accumHarmonyVal">100% TUYỆT ĐỐI</strong>
+            </div>
+          </div>
+
+          <!-- 20-Tier Tech Grid -->
+          <div class="tech-tree-grid" id="techTreeGrid">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+
+        <!-- Sub-View 2: 14 Craft Sectors & Certificates Directory -->
+        <div class="sub-pane" id="sub-crafts">
+          <div class="crafts-filter-bar">
+            <input type="text" id="craftSearchInput" placeholder="🔍 Tìm kiếm ngành nghề, chứng chỉ (ví dụ: CERT_AUTO_MECHANIC, bánh mì, y tế)...">
+            <span class="craft-count-badge" id="craftCountBadge">14 Khối Chuyên Ngành</span>
+          </div>
+
+          <div class="crafts-card-grid" id="craftsCardGrid">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 5: GODOT-MCP AI WORKFLOW & 42 TOOLS EXPLORER -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="pane-mcp">
+        <div class="content-header">
+          <div>
+            <h2 class="pane-title">Quy Trình Tự Động Hóa Với Godot-MCP (AI Game Developer)</h2>
+            <p class="pane-desc">Kiến trúc 4 tầng, Vòng lặp tự sửa lỗi (Self-Healing Loop) và Bảng tra cứu 42 công cụ mở rộng của Ivan Murzak</p>
+          </div>
+          <div class="mcp-quick-stats">
+            <span class="stat-chip">12 Họ Công Cụ</span>
+            <span class="stat-chip">42 AI Tools</span>
+            <span class="stat-chip status-ok">MainThread Safe</span>
+          </div>
+        </div>
+
+        <!-- 4-Layer Architecture Visual Diagram -->
+        <div class="arch-diagram-card">
+          <h3 class="card-heading">SƠ ĐỒ KIẾN TRÚC TƯƠNG TÁC 4 TẦNG</h3>
+          <div class="arch-layers-grid">
+            
+            <div class="arch-layer-box layer-1">
+              <div class="layer-badge">TẦNG 1</div>
+              <h4>Host Engine Layer</h4>
+              <p>Godot Engine 4.6.2 (C# & GDScript Runtime, SceneTree, ClassDB, OS.AddLogger)</p>
+            </div>
+
+            <div class="arch-connector">➔</div>
+
+            <div class="arch-layer-box layer-2">
+              <div class="layer-badge">TẦNG 2</div>
+              <h4>Runtime Addon Layer</h4>
+              <p>Godot-MCP C# Plugin, extensions.catalog.json, MainThread Dispatcher</p>
+            </div>
+
+            <div class="arch-connector">➔</div>
+
+            <div class="arch-layer-box layer-3">
+              <div class="layer-badge">TẦNG 3</div>
+              <h4>Protocol & Transport</h4>
+              <p>Model Context Protocol (MCP) qua JSON-RPC stdio hoặc WebSocket</p>
+            </div>
+
+            <div class="arch-connector">➔</div>
+
+            <div class="arch-layer-box layer-4">
+              <div class="layer-badge">TẦNG 4</div>
+              <h4>AI Agent Brain</h4>
+              <p>LLM Subagents, Vòng lặp khép kín Self-Healing & Visual Feedback (Screenshots)</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3 Mandatory Safety Rules -->
+        <div class="safety-rules-grid">
+          <div class="rule-card">
+            <span class="rule-num">QUY TẮC 1</span>
+            <h4>Điều Phối Luồng Chính (MainThread Invariant)</h4>
+            <p>Mọi thao tác can thiệp <code>Node</code>, <code>Resource</code>, <code>SceneTree</code> trong C# bắt buộc phải được bọc trong <code>MainThread.Instance.Run(() => { ... })</code> để tránh tranh chấp luồng và văng crash engine.</p>
+          </div>
+
+          <div class="rule-card">
+            <span class="rule-num">QUY TẮC 2</span>
+            <h4>Nhúng Danh Mục Catalog Vào .csproj</h4>
+            <p>Tệp dự án .csproj bắt buộc phải có khai báo <code>&lt;EmbeddedResource Include="addons/godot_mcp/extensions.catalog.json" LogicalName="Godot-MCP.extensions.catalog.json" /&gt;</code> để trình nạp Assembly nhận diện 42 tools.</p>
+          </div>
+
+          <div class="rule-card">
+            <span class="rule-num">QUY TẮC 3</span>
+            <h4>Vòng Lặp Tự Sửa Lỗi Khép Kín (Self-Healing)</h4>
+            <p>Hook trực tiếp vào <code>OS.AddLogger</code> (Godot 4.5+); mọi runtime error hoặc assertion fail được đóng gói trả về cho AI xử lý tự động trong vòng tương tác tiếp theo mà không cần user copy log thủ công.</p>
+          </div>
+        </div>
+
+        <!-- 42 Tools Directory with Search & Category Filters -->
+        <div class="tools-directory-card">
+          <div class="tools-filter-bar">
+            <input type="text" id="mcpSearchInput" placeholder="🔍 Tìm kiếm trong 42 công cụ (ví dụ: navigation, particles, tilemap, camera)...">
+            <div class="category-pills" id="mcpCategoryPills">
+              <button class="cat-pill active" data-cat="all">Tất Cả (42)</button>
+              <button class="cat-pill" data-cat="Navigation">Navigation (7)</button>
+              <button class="cat-pill" data-cat="Particles">Particles (5)</button>
+              <button class="cat-pill" data-cat="Tilemap">Tilemap (6)</button>
+              <button class="cat-pill" data-cat="Animation">Animation (7)</button>
+              <button class="cat-pill" data-cat="CSG">CSG (7)</button>
+              <button class="cat-pill" data-cat="GridMap">GridMap (7)</button>
+              <button class="cat-pill" data-cat="PhantomCamera">PhantomCamera (7)</button>
+              <button class="cat-pill" data-cat="Beehave">Beehave (6)</button>
+              <button class="cat-pill" data-cat="Dialogic">Dialogic (5)</button>
+              <button class="cat-pill" data-cat="Terrain3D">Terrain3D (6)</button>
+            </div>
+          </div>
+
+          <div class="tools-table-container">
+            <table class="styled-table" id="mcpToolsTable">
+              <thead>
+                <tr>
+                  <th>Tên Công Cụ (Tool Name)</th>
+                  <th>Gói Mở Rộng (Extension)</th>
+                  <th>Chức Năng Chính</th>
+                  <th>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="mcpToolsTableBody">
+                <!-- Dynamically populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>Dự Án: <strong>Tân Thế Giới (Godot 4.6.2 GL Compatibility)</strong></span>
+        <span class="sep">•</span>
+        <span>Kiến Trúc: <strong>Local-First Monolith (100% Offline SQLite)</strong></span>
+        <span class="sep">•</span>
+        <span>Phần Cứng Đích: <strong>Intel Iris Xe / UHD Graphics (0MB Dedicated VRAM)</strong></span>
+      </div>
+      <div class="footer-right">
+        <span>© 2026 Tân Thế Giới Studio • Master Concept & Technical Architecture Specification</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="appToast">
+    <span class="toast-icon">ℹ️</span>
+    <span class="toast-msg">Thông báo</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

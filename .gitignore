@@ -1,0 +1,35 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# Mono-specific (if used)
+.mono/
+data_*/
+mono_crash.*.json
+
+# Build and export exports
+export/
+build/
+*.pck
+*.apk
+*.aab
+*.exe
+
+# System and OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDE and Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+
+# SQLite database local locks or journals
+*.db-journal
+*.db-wal
+*.db-shm

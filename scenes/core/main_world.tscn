@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://dm5ar7n8e2x0y"]
+
+[ext_resource type="Script" uid="uid://xerp4ncelaop" path="res://scripts/core/main_world.gd" id="1_mw"]
+[ext_resource type="Shader" uid="uid://cyxpy5anf4ak4" path="res://assets/shaders/anime_sky.gdshader" id="2_sky"]
+[ext_resource type="PackedScene" uid="uid://bp8v7x14q1k5a" path="res://scenes/characters/player.tscn" id="4_ply"]
+[ext_resource type="PackedScene" uid="uid://c3q8j5m2n8p1o" path="res://scenes/ui/hud_overlay.tscn" id="5_hud"]
+[ext_resource type="Script" uid="uid://cinf5c5s61b0j" path="res://scripts/environment/day_night_controller.gd" id="11_dnc"]
+[ext_resource type="Script" uid="uid://dv0q6akod234m" path="res://scripts/terrain/natural_landscape_assembler.gd" id="12_lnd"]
+[ext_resource type="PackedScene" uid="uid://c83p6m4k1r8qe" path="res://scenes/interactive/helicopter.tscn" id="13_heli"]
+[ext_resource type="PackedScene" uid="uid://cx8km4h6j7u8e" path="res://scenes/interactive/helipad.tscn" id="14_hlpd"]
+[ext_resource type="PackedScene" path="res://scenes/environment/central_capital_complex.tscn" id="15_cap"]
+[ext_resource type="PackedScene" path="res://scenes/interactive/mayor_buggy.tscn" id="16_buggy"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("2_sky")
+shader_parameter/top_color = Color(0.30371115, 0.23800734, 0.5947944, 1)
+shader_parameter/horizon_color = Color(0.92642593, 0.47058508, 0.59972584, 1)
+shader_parameter/bottom_color = Color(0.48393512, 0.31872946, 0.4824406, 1)
+shader_parameter/sun_color = Color(1, 0.69207954, 0.500224, 1)
+shader_parameter/sun_size = 0.05
+shader_parameter/sun_blur = 0.04
+shader_parameter/horizon_glow_color = Color(0.97963893, 0.513798, 0.5651554, 1)
+shader_parameter/horizon_glow_intensity = 1.382815240975674
+shader_parameter/stars_intensity = 0.21606488140244903
+shader_parameter/stars_twinkle_speed = 3.5
+shader_parameter/cloud_color = Color(1, 1, 1, 1)
+shader_parameter/cloud_shadow_color = Color(0.82, 0.88, 0.94, 1)
+shader_parameter/cloud_coverage = 0.42
+shader_parameter/cloud_speed = 0.005
+
+[sub_resource type="Sky" id="Sky_world"]
+sky_material = SubResource("ShaderMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_world"]
+background_mode = 2
+sky = SubResource("Sky_world")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.5635741
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.35
+fog_enabled = true
+fog_light_color = Color(0.71085924, 0.517011, 0.66615176, 1)
+fog_density = 0.00033642596
+
+[node name="MainWorld" type="Node3D" unique_id=1212299507]
+transform = Transform3D(0.9999883, 0, -0.0048345434, 0, 1, 0, 0.0048345434, 0, 0.9999883, 0, 0, 0)
+script = ExtResource("1_mw")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1361505789]
+environment = SubResource("Environment_world")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=532972847]
+transform = Transform3D(-0.37011266, 0.12111679, -0.9210577, 0, 0.99146473, 0.13037512, 0.9289869, 0.048253488, -0.3669536, 0, 5000, 0)
+light_color = Color(1, 0.607011, 0.45058504, 1)
+light_energy = 1.1771481
+shadow_enabled = true
+directional_shadow_max_distance = 180.0
+
+[node name="DayNightController" type="Node3D" parent="." unique_id=1228417653 node_paths=PackedStringArray("world_environment", "directional_light")]
+script = ExtResource("11_dnc")
+world_environment = NodePath("../WorldEnvironment")
+directional_light = NodePath("../DirectionalLight3D")
+
+[node name="NaturalLandscape" type="Node3D" parent="." unique_id=233118791]
+script = ExtResource("12_lnd")
+
+[node name="Player" parent="." unique_id=79776001 instance=ExtResource("4_ply")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 601.2, 28)
+
+[node name="Helicopter" parent="." unique_id=73636135 instance=ExtResource("13_heli")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 794.55, 130)
+
+[node name="MayorBuggy" parent="." unique_id=741798686 instance=ExtResource("16_buggy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 290, 600.3, 100)
+
+[node name="CentralCapital" parent="." unique_id=378044612 instance=ExtResource("15_cap")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 600, 0)
+
+[node name="Helipad" parent="CentralCapital" unique_id=1991531091 instance=ExtResource("14_hlpd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 194.4, 130)
+follow_terrain = false
+
+[node name="HUDOverlay" parent="." unique_id=1883670262 instance=ExtResource("5_hud")]

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c83p6m4k1r8qe"]
+
+[ext_resource type="Script" path="res://scripts/interactive/helicopter_controller.gd" id="1_heli"]
+
+[node name="Helicopter" type="CharacterBody3D"]
+collision_layer = 3
+collision_mask = 1
+script = ExtResource("1_heli")
