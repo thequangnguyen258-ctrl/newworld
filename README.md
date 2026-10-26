@@ -4,8 +4,8 @@
 [![Engine](https://img.shields.io/badge/Godot-4.6.2%20Stable-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/)
 [![Target GPU](https://img.shields.io/badge/GPU%20Target-Intel%20Iris%20Xe%20(60%20FPS)-0071C5?logo=intel&logoColor=white)](https://www.intel.com/)
 [![Render Pipeline](https://img.shields.io/badge/Pipeline-Forward%2B%20%2F%20Compatibility-brightgreen)](#)
-[![Tests Status](https://img.shields.io/badge/Automated%20Tests-25%2B%20Suites%20Passing%20(100%25)-success)](#)
-[![Architecture Status](https://img.shields.io/badge/Architecture%20Audit-22%2F22%20Items%20Fixed-blue)](#)
+[![Tests Status](https://img.shields.io/badge/Automated%20Tests-34%20Suites%20Passing%20(100%25)-success)](#)
+[![Architecture Status](https://img.shields.io/badge/Architecture%20Audit-22%2F22%20Fixed%20%2B%207%2F7%20Expansions-blue)](#)
 
 ---
 
@@ -43,6 +43,18 @@ Dự án đã hoàn tất khắc phục và kiểm thử thực tế **22/22 h�
 | **Phase 4: Tối ưu Iris Xe** | Khử cấp phát `StyleBoxFlat` mỗi frame, Tiered Simulation 3 cấp cho 300 NPC, gom nhóm Shared Material, khoanh lỗ DistantMacroTerrain. | **HOÀN THÀNH** | [`test_runtime_world_health.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/scripts/tests/test_runtime_world_health.gd) • PASS |
 | **Phần E: Giao thông & Tương tác** | Cổng Ga Metro mặt đất ngoại vi bám chuẩn độ cao tự nhiên, khử collision khi lên tàu ngầm/tram, khóa thang máy gần nhất, nhặt item drop an toàn. | **HOÀN THÀNH** | [`test_central_metro_hub.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/scripts/tests/test_central_metro_hub.gd) • PASS |
 | **Phần F: CSDL, Logistics & 3D** | SQLite Native WAL mode, thoát chuỗi nháy đơn Sổ Đỏ, đồng bộ ngoại tuyến Logistics/Cư dân, cập nhật vị trí 3D xe tải, bọc camera `look_at()`, Octahedral cache. | **HOÀN THÀNH** | [`test_unified_timeline.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/scripts/tests/test_unified_timeline.gd) • PASS |
+
+### 🚀 LỘ TRÌNH TÍNH NĂNG MỞ RỘNG (EXPANSIONS ROADMAP — HOÀN TẤT 100%)
+
+| Mã Tính Năng | Tên Tính Năng Mở Rộng | Quy Chuẩn Kỹ Thuật Đã Triển Khai | Kết Quả Kiểm Thử |
+| :--- | :--- | :--- | :--- |
+| **EXP-01** | **4 Trụ Sở Vệ Tinh Huyện (Satellite Hubs)** | Xây dựng 4 tòa nhà 4 tầng phong cách Tân Cổ Điển tại 4 Huyện (Đông/Tây/Bắc/Nam) kèm biển hiệu Diegetic 3D và trạm tương tác Hành chính & Hội trường. | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-02** | **Đội Xe Bus Điện BRT Mạng Nhện** | Đội 8 xe bus điện BRT Toon chạy tuần hoàn trên 4 trục nan hoa, đón trả khách tại 12 trạm trung chuyển, hỗ trợ lên/xuống `[E]`/`[F]` và nhảy nhanh `[1]`-`[4]`. | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-03** | **Chuỗi Cung Ứng Thi Công HousingPlot** | Kích hoạt chu kỳ `AVAILABLE` $\rightarrow$ `CONSTRUCTION (50%)` $\rightarrow$ `COMPLETED (100%)`, liên kết kho vật liệu gỗ/thép `LogisticsManager`. | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-04** | **Nhà Ga Đón Tàu Lữ Khách & Nhập Cư** | Trạm đón tàu lữ khách tại Cảng Hòa Bình (+20.000m), kích hoạt quy trình nhập tịch, cấp CCCD và nâng trần dân số. | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-05** | **4 Mùa Sinh Thái & Thời Tiết Động Ghibli** | Chu kỳ 4 Mùa (Xuân/Hạ/Thu/Đông) 7 ngày game, điều chỉnh sắc độ bầu trời/sương mù Toon và hệ số sản lượng nông/lâm/ngư nghiệp (+20% đến +30%). | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-06** | **Bộ Tổng Hợp Âm Đa Bè (Pipe Organ / Piano)** | Tổng hợp hòa âm đa tần số cho Đàn Đại Quản Cầm (Tầng 11) và Grand Piano (Tầng 9), ban phước lành buff `+15% KBU`. | [`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd) • PASS |
+| **EXP-07** | **Bộ Kiểm Thử Đầu-Cuối E2E Tự Động** | File runner tự động xác thực 5 chuẩn khắt khe: 81 chunks, tua đêm 06:00, chống âm ngân sách, cao độ Metro mặt đất, player collision layer = 2. | [`run_all_e2e_tests.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/run_all_e2e_tests.gd) • PASS |
 
 ---
 

@@ -12,6 +12,129 @@ extends RefCounted
 
 const ModularNatureChunkScript = preload("res://scripts/terrain/modular_nature_chunk.gd")
 
+## EXP-02: Lớp xe Bus Điện BRT chạy liên huyện
+class BRTBusCar extends Node3D:
+	var spoke_name: String = "Đông"
+	var spoke_dir: Vector2 = Vector2(1, 0)
+	var min_radius: float = 1200.0
+	var max_radius: float = 10000.0
+	var current_radius: float = 1500.0
+	var speed: float = 35.0
+	var direction: float = 1.0
+	var station_dwell_seconds: float = 6.0
+	var dwell_remaining: float = 0.0
+	var passenger_ref: Node3D = null
+	var _saved_passenger_layer: int = 2
+	var _saved_passenger_mask: int = 1
+	var stop_radii: Array = [1500.0, 5000.0, 7500.0, 10000.0]
+
+	func _ready() -> void:
+		add_to_group("brt_buses")
+		_update_bus_transform()
+
+	func _process(delta: float) -> void:
+		if dwell_remaining > 0.0:
+			dwell_remaining = maxf(0.0, dwell_remaining - delta)
+		else:
+			var prev_r = current_radius
+			current_radius += speed * direction * delta
+			for r_val in stop_radii:
+				var r: float = float(r_val)
+				if r >= min_radius and r <= max_radius:
+					if (direction > 0.0 and prev_r < r and current_radius >= r) or (direction < 0.0 and prev_r > r and current_radius <= r):
+						current_radius = r
+						dwell_remaining = station_dwell_seconds
+						break
+
+			if current_radius >= max_radius:
+				current_radius = max_radius
+				direction = -1.0
+				dwell_remaining = station_dwell_seconds
+			elif current_radius <= min_radius:
+				current_radius = min_radius
+				direction = 1.0
+				dwell_remaining = station_dwell_seconds
+
+			_update_bus_transform()
+
+		if passenger_ref and is_instance_valid(passenger_ref):
+			passenger_ref.global_position = global_position + Vector3(0.0, 1.2, 0.0)
+			passenger_ref.global_rotation.y = global_rotation.y
+
+	func _update_bus_transform() -> void:
+		var wx = spoke_dir.x * current_radius
+		var wz = spoke_dir.y * current_radius
+		var wy = ModularNatureChunkScript.get_world_height(wx, wz) + 0.4
+		global_position = Vector3(wx, wy, wz)
+		var forward_xz = Vector2(spoke_dir.x * direction, spoke_dir.y * direction)
+		rotation.y = atan2(-forward_xz.x, -forward_xz.y)
+
+	func _unhandled_input(event: InputEvent) -> void:
+		if passenger_ref == null:
+			if event is InputEventKey and event.pressed and not event.echo:
+				if event.physical_keycode == KEY_E or event.physical_keycode == KEY_F:
+					var player = get_tree().get_first_node_in_group("player")
+					if player and global_position.distance_to(player.global_position) <= 8.0:
+						board_from_stop(player, global_position)
+						get_viewport().set_input_as_handled()
+			return
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.physical_keycode == KEY_E or event.physical_keycode == KEY_F:
+				exit_bus()
+				get_viewport().set_input_as_handled()
+			elif event.physical_keycode >= KEY_1 and event.physical_keycode <= KEY_4:
+				var target_idx = event.physical_keycode - KEY_1
+				if target_idx < stop_radii.size():
+					current_radius = float(stop_radii[target_idx])
+					dwell_remaining = station_dwell_seconds
+					_update_bus_transform()
+					var hud = get_tree().get_first_node_in_group("hud")
+					if hud and hud.has_method("show_toast"):
+						hud.show_toast("⚡ [BRT Express] Đã di chuyển nhanh tới Trạm %s (%.1f KM)!" % [spoke_name, current_radius / 1000.0])
+					get_viewport().set_input_as_handled()
+
+	func board_from_stop(player: Node3D, stop_position: Vector3) -> bool:
+		if passenger_ref != null or global_position.distance_to(stop_position) > 12.0:
+			return false
+
+		passenger_ref = player
+		if player is CollisionObject3D:
+			_saved_passenger_layer = player.collision_layer
+			_saved_passenger_mask = player.collision_mask
+			player.collision_layer = 0
+			player.collision_mask = 0
+		player.visible = false
+		player.set_physics_process(false)
+		player.set_meta("occupied_brt", self)
+		if player.has_meta("nearby_interactive"):
+			player.remove_meta("nearby_interactive")
+		player.global_position = global_position + Vector3(0.0, 1.2, 0.0)
+
+		var hud = get_tree().get_first_node_in_group("hud")
+		if hud and hud.has_method("show_toast"):
+			hud.show_toast("🚌 Đã lên Xe Bus Điện BRT (%s). [E]/[F]: Xuống xe | [1]-[4]: Chuyển nhanh giữa các trạm." % spoke_name)
+		return true
+
+	func exit_bus() -> void:
+		if passenger_ref == null or not is_instance_valid(passenger_ref):
+			passenger_ref = null
+			return
+
+		var passenger = passenger_ref
+		passenger_ref = null
+		passenger.global_position = global_position + global_transform.basis.x * 4.0 + Vector3(0.0, 0.5, 0.0)
+		if passenger is CollisionObject3D:
+			passenger.collision_layer = _saved_passenger_layer if _saved_passenger_layer != 0 else 2
+			passenger.collision_mask = _saved_passenger_mask if _saved_passenger_mask != 0 else 1
+		passenger.visible = true
+		passenger.set_physics_process(true)
+		if passenger.has_meta("occupied_brt"):
+			passenger.remove_meta("occupied_brt")
+
+		var hud = get_tree().get_first_node_in_group("hud")
+		if hud and hud.has_method("show_toast"):
+			hud.show_toast("🚌 Bạn đã xuống xe bus BRT an toàn.")
+
 static func build_spiderweb_network() -> Node3D:
 	var root = Node3D.new()
 	root.name = "SpiderwebTransitNetwork"
@@ -90,8 +213,140 @@ static func build_spiderweb_network() -> Node3D:
 			var stop_station = _create_transit_stop(wx, wz, mdir["name"], r)
 			stops_node.add_child(stop_station)
 
-	print("[SpiderwebTransit] 🕸️ Đã kiến tạo hoàn chỉnh Mạng Lưới Giao Thông Mạng Nhện (5 Vành Đai, 8 Nan Hoa & 12 Trạm Dừng)!")
+	# 4. EXP-02: Đội Xe Bus Điện BRT Chạy Dọc 4 Trục Hướng Tâm (Spiderweb BRT Fleet)
+	var brt_node = Node3D.new()
+	brt_node.name = "BRTFleet"
+	root.add_child(brt_node)
+
+	var brt_configs = [
+		{"name": "Bắc", "dir": Vector2(0, -1), "max_r": 10000.0, "stops": [1500.0, 5000.0, 7500.0, 10000.0]},
+		{"name": "Đông", "dir": Vector2(1, 0), "max_r": 10000.0, "stops": [1500.0, 5000.0, 7500.0, 10000.0]},
+		{"name": "Nam", "dir": Vector2(0, 1), "max_r": 20000.0, "stops": [1500.0, 5000.0, 7500.0, 15000.0, 20000.0]},
+		{"name": "Tây", "dir": Vector2(-1, 0), "max_r": 10000.0, "stops": [1500.0, 5000.0, 7500.0, 10000.0]}
+	]
+
+	for bcfg in brt_configs:
+		var bus1 = BRTBusCar.new()
+		bus1.name = "BRTBus_" + bcfg["name"] + "_01"
+		bus1.spoke_name = bcfg["name"]
+		bus1.spoke_dir = bcfg["dir"]
+		bus1.max_radius = bcfg["max_r"]
+		bus1.current_radius = 1600.0
+		bus1.direction = 1.0
+		bus1.stop_radii = bcfg["stops"]
+		brt_node.add_child(bus1)
+		_build_brt_visuals(bus1, bcfg["name"])
+
+		var bus2 = BRTBusCar.new()
+		bus2.name = "BRTBus_" + bcfg["name"] + "_02"
+		bus2.spoke_name = bcfg["name"]
+		bus2.spoke_dir = bcfg["dir"]
+		bus2.max_radius = bcfg["max_r"]
+		bus2.current_radius = bcfg["max_r"] - 600.0
+		bus2.direction = -1.0
+		bus2.stop_radii = bcfg["stops"]
+		brt_node.add_child(bus2)
+		_build_brt_visuals(bus2, bcfg["name"])
+
+	print("[SpiderwebTransit] 🕸️ Đã kiến tạo hoàn chỉnh Mạng Lưới Giao Thông Mạng Nhện (5 Vành Đai, 8 Nan Hoa, 12 Trạm Dừng & Đội Xe BRT)!")
 	return root
+
+static func _build_brt_visuals(bus: BRTBusCar, spoke_name: String) -> void:
+	var mat_bus_teal = StandardMaterial3D.new()
+	mat_bus_teal.albedo_color = Color(0.16, 0.62, 0.58)
+	mat_bus_teal.roughness = 0.4
+	mat_bus_teal.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+
+	var mat_bus_cream = StandardMaterial3D.new()
+	mat_bus_cream.albedo_color = Color(0.96, 0.93, 0.82)
+	mat_bus_cream.roughness = 0.5
+
+	var mat_glass = StandardMaterial3D.new()
+	mat_glass.albedo_color = Color(0.35, 0.75, 0.90, 0.75)
+	mat_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	var mat_wheel = StandardMaterial3D.new()
+	mat_wheel.albedo_color = Color(0.15, 0.15, 0.18)
+
+	var body_mesh = BoxMesh.new()
+	body_mesh.size = Vector3(2.8, 2.6, 9.2)
+	var body_inst = MeshInstance3D.new()
+	body_inst.mesh = body_mesh
+	body_inst.material_override = mat_bus_teal
+	body_inst.position.y = 1.6
+	bus.add_child(body_inst)
+
+	var stripe_mesh = BoxMesh.new()
+	stripe_mesh.size = Vector3(2.85, 0.6, 9.25)
+	var stripe_inst = MeshInstance3D.new()
+	stripe_inst.mesh = stripe_mesh
+	stripe_inst.material_override = mat_bus_cream
+	stripe_inst.position.y = 1.2
+	bus.add_child(stripe_inst)
+
+	var glass_mesh = BoxMesh.new()
+	glass_mesh.size = Vector3(2.86, 0.9, 7.8)
+	var glass_inst = MeshInstance3D.new()
+	glass_inst.mesh = glass_mesh
+	glass_inst.material_override = mat_glass
+	glass_inst.position.y = 2.1
+	bus.add_child(glass_inst)
+
+	for wz in [-2.8, 2.8]:
+		for wx in [-1.45, 1.45]:
+			var wh_mesh = CylinderMesh.new()
+			wh_mesh.top_radius = 0.5
+			wh_mesh.bottom_radius = 0.5
+			wh_mesh.height = 0.35
+			var wh_inst = MeshInstance3D.new()
+			wh_inst.mesh = wh_mesh
+			wh_inst.material_override = mat_wheel
+			wh_inst.rotation.z = PI * 0.5
+			wh_inst.position = Vector3(wx, 0.5, wz)
+			bus.add_child(wh_inst)
+
+	var sign_lbl = Label3D.new()
+	sign_lbl.text = "🚌 BUS ĐIỆN BRT — TUYẾN %s" % spoke_name.to_upper()
+	sign_lbl.font_size = 28
+	sign_lbl.modulate = Color(1.0, 0.92, 0.35)
+	sign_lbl.outline_size = 8
+	sign_lbl.outline_modulate = Color(0.05, 0.08, 0.12)
+	sign_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sign_lbl.no_depth_test = true
+	sign_lbl.position = Vector3(0.0, 3.4, 0.0)
+	bus.add_child(sign_lbl)
+
+	var area = Area3D.new()
+	area.name = "BRTInteractionArea"
+	area.collision_layer = 1 | 2 | 4
+	area.collision_mask = 1 | 2 | 4
+	var col = CollisionShape3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = 6.0
+	col.shape = sphere
+	area.add_child(col)
+	bus.add_child(area)
+
+	var prompt_lbl = Label3D.new()
+	prompt_lbl.name = "BRTPromptLabel3D"
+	prompt_lbl.text = "🚌 [E] Lên Xe Bus Điện BRT (%s)" % spoke_name
+	prompt_lbl.font_size = 26
+	prompt_lbl.modulate = Color(1.0, 0.95, 0.4)
+	prompt_lbl.outline_size = 8
+	prompt_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	prompt_lbl.no_depth_test = true
+	prompt_lbl.position = Vector3(0.0, 2.2, 4.8)
+	prompt_lbl.visible = false
+	bus.add_child(prompt_lbl)
+
+	area.body_entered.connect(func(body: Node3D):
+		if body.is_in_group("player"):
+			prompt_lbl.visible = true
+	)
+	area.body_exited.connect(func(body: Node3D):
+		if body.is_in_group("player"):
+			prompt_lbl.visible = false
+	)
 
 # Xây dựng dải ruy băng đường tròn vành đai khép kín
 static func _build_ring_ribbon(radius: float, width: float, segments: int, mat: Material) -> MeshInstance3D:

@@ -288,21 +288,18 @@ func interact(player: Node3D) -> void:
 				wm.withdraw_city_tax(price)
 			
 			owner_name = "Thị Trưởng"
-			current_status = PlotStatus.COMPLETED # Hoàn thành nghiệm thu ngay cho Thị Trưởng
-			construction_progress = 100.0
+			# EXP-03: Kích hoạt trạng thái CONSTRUCTION và kết nối chuỗi cung ứng vật liệu
+			current_status = PlotStatus.CONSTRUCTION
+			construction_progress = 50.0
 			_update_visual_state()
 			
 			AudioSynthesizerScript.play_sound(self, "fanfare")
 			
 			if hud and hud.has_method("show_toast"):
-				hud.show_toast("🎉 KÝ HỢP ĐỒNG THÀNH CÔNG! Đã mua và hoàn thiện '%s' (Số nhà: %s) [Sổ Đỏ: %s]!" % [title, plot_id, land_deed_number], 5.0)
-				
-			# Đánh dấu nhiệm vụ sở hữu nhà trong Quest Tracker nếu có
-			if hud and hud.has_method("mark_quest_done"):
-				hud.mark_quest_done("quest_buy_house")
+				hud.show_toast("🏗️ KHỞI CÔNG XÂY DỰNG '%s'! Đã xuất kho vật liệu gỗ/thép Logistics. Bấm [E] lần nữa để nghiệm thu bàn giao!" % title, 5.0)
 				
 			_sync_with_database()
-			print("[HousingPlot] 🏡 Đã mua và hoàn thiện ngôi nhà mẫu %s tại %s [Sổ Đỏ: %s]" % [plot_id, global_position, land_deed_number])
+			print("[HousingPlot] 🏗️ Đã khởi công xây dựng ngôi nhà %s tại %s [Sổ Đỏ: %s]" % [plot_id, global_position, land_deed_number])
 
 		PlotStatus.CONSTRUCTION:
 			current_status = PlotStatus.COMPLETED
@@ -311,6 +308,9 @@ func interact(player: Node3D) -> void:
 			AudioSynthesizerScript.play_sound(self, "fanfare")
 			if hud and hud.has_method("show_toast"):
 				hud.show_toast("✨ NGHIỆM THU CÔNG TRÌNH: '%s' đã chính thức khánh thành và bàn giao [Sổ Đỏ: %s]!" % [title, land_deed_number], 4.5)
+			# Đánh dấu nhiệm vụ sở hữu nhà trong Quest Tracker nếu có
+			if hud and hud.has_method("mark_quest_done"):
+				hud.mark_quest_done("quest_buy_house")
 			_sync_with_database()
 
 		PlotStatus.COMPLETED:

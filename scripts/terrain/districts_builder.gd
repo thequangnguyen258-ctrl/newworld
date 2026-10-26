@@ -120,6 +120,9 @@ static func build_east_district() -> Node3D:
 	buggy_east.position = Vector3(-6.0, 0.3, 14.0)
 	root.add_child(buggy_east)
 
+	# 10. EXP-01: Tòa Trụ Sở Vệ Tinh Huyện Đông (4 tầng Tân Cổ Điển)
+	_build_district_satellite_hub(root, Vector3(0.0, 0.0, -32.0), "Huyện Đông - Nông Trang & Thảo Nguyên", Color(0.92, 0.78, 0.22))
+
 	return root
 
 # ------------------------------------------------------------------------------
@@ -206,6 +209,9 @@ static func build_west_district() -> Node3D:
 	buggy_west.position = Vector3(8.0, 0.3, 12.0)
 	root.add_child(buggy_west)
 
+	# 9. EXP-01: Tòa Trụ Sở Vệ Tinh Huyện Tây (4 tầng Tân Cổ Điển)
+	_build_district_satellite_hub(root, Vector3(0.0, 0.0, -32.0), "Huyện Tây - Kỹ Nghệ & Năng Lượng", Color(0.3, 0.65, 0.85))
+
 	return root
 
 # ------------------------------------------------------------------------------
@@ -286,6 +292,9 @@ static func build_north_district() -> Node3D:
 	buggy_north.name = "MayorBuggyNorth"
 	buggy_north.position = Vector3(-8.0, 0.3, 10.0)
 	root.add_child(buggy_north)
+
+	# 9. EXP-01: Tòa Trụ Sở Vệ Tinh Huyện Bắc (4 tầng Tân Cổ Điển)
+	_build_district_satellite_hub(root, Vector3(0.0, 0.0, -32.0), "Huyện Bắc - Đại Ngàn & Onsen", Color(0.2, 0.6, 0.35))
 
 	return root
 
@@ -382,11 +391,82 @@ static func build_south_district() -> Node3D:
 	buggy_south.position = Vector3(-12.0, 0.3, -12.0)
 	root.add_child(buggy_south)
 
+	# 10. EXP-01: Tòa Trụ Sở Vệ Tinh Huyện Nam (4 tầng Tân Cổ Điển)
+	_build_district_satellite_hub(root, Vector3(-25.0, 0.0, -25.0), "Huyện Nam - Cảng Hòa Bình", Color(0.2, 0.45, 0.85))
+
+	# 11. EXP-04: Nhà Ga Đón Tàu Lữ Khách & Nhập Cư Cảng Hòa Bình
+	var st_ship = InteractiveStationScript.new()
+	st_ship.name = "StationPassengerShipTerminal"
+	st_ship.station_type = InteractiveStationScript.StationType.SOUTH_PORT
+	st_ship.station_id = "passenger_ship_terminal"
+	st_ship.title_name = "Nhà Ga Tàu Khách Quốc Tế — Cảng Hòa Bình"
+	st_ship.prompt_text = "🚢 [E] Tiếp Nhận Lữ Khách & Cấp Thẻ CCCD Nhập Cư"
+	st_ship.interaction_radius = 6.5
+	st_ship.position = Vector3(0.0, 0.3, 50.0)
+	root.add_child(st_ship)
+
 	return root
 
 # ------------------------------------------------------------------------------
 # CÁC HÀM HELPER SINH HÌNH HỌC VÀ VẬT THỂ
 # ------------------------------------------------------------------------------
+
+## EXP-01: Tòa Trụ Sở Vệ Tinh & Hội Trường Huyện (4 tầng Tân Cổ Điển)
+static func _build_district_satellite_hub(parent: Node3D, pos: Vector3, hub_title: String, theme_color: Color) -> Node3D:
+	var hub = Node3D.new()
+	hub.name = "SatelliteHub_" + hub_title.substr(0, 12).replace(" ", "_").replace("-", "_")
+	hub.position = pos
+	parent.add_child(hub)
+
+	var body_mat = _create_material(Color(0.95, 0.93, 0.88), 0.1, 0.7)
+	var roof_mat = _create_material(theme_color, 0.15, 0.45)
+	var glass_mat = _create_material(Color(0.55, 0.78, 0.95, 0.75), 0.3, 0.15)
+	glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	# Thân tòa nhà 4 tầng (22m rộng x 16m cao x 16m sâu)
+	var body = _create_box_collider("HubMainBuilding", Vector3(22.0, 16.0, 16.0), body_mat)
+	body.position.y = 8.0
+	hub.add_child(body)
+
+	# Mái vòm tân cổ điển
+	var roof = _create_box_collider("HubRoof", Vector3(23.6, 1.2, 17.6), roof_mat)
+	roof.position.y = 16.6
+	hub.add_child(roof)
+
+	# Dãy cửa kính 4 tầng mặt trước & mặt sau
+	for fl in range(4):
+		var fy: float = 2.2 + float(fl) * 3.8
+		for wx in [-7.5, -2.5, 2.5, 7.5]:
+			var front_win = _create_box_collider("WinF_%d_%d" % [fl, int(wx)], Vector3(3.2, 2.2, 0.2), glass_mat)
+			front_win.position = Vector3(wx, fy, 8.05)
+			hub.add_child(front_win)
+			var back_win = _create_box_collider("WinB_%d_%d" % [fl, int(wx)], Vector3(3.2, 2.2, 0.2), glass_mat)
+			back_win.position = Vector3(wx, fy, -8.05)
+			hub.add_child(back_win)
+
+	# Biển hiệu Diegetic 3D phía trước Tòa Vệ Tinh
+	var sign_lbl = Label3D.new()
+	sign_lbl.text = "🏛️ TÒA VỆ TINH & HỘI TRƯỜNG\n" + hub_title.to_upper()
+	sign_lbl.font_size = 38
+	sign_lbl.modulate = Color(1.0, 0.92, 0.45)
+	sign_lbl.outline_size = 10
+	sign_lbl.position = Vector3(0, 18.8, 8.2)
+	sign_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sign_lbl.no_depth_test = true
+	hub.add_child(sign_lbl)
+
+	# Trạm tương tác Quầy Hành Chính & Hội Trường Vệ Tinh ở sảnh chính
+	var st = InteractiveStationScript.new()
+	st.name = "StationSatelliteHub_" + hub_title.substr(0, 10).replace(" ", "_")
+	st.station_type = InteractiveStationScript.StationType.DESK
+	st.station_id = "satellite_hub_" + hub_title.to_lower().substr(0, 10).replace(" ", "_")
+	st.title_name = "Tòa Hành Chính & Hội Trường Vệ Tinh — " + hub_title
+	st.prompt_text = "⚡ [E] Làm Việc & Dự Lễ Tại Tòa Vệ Tinh " + hub_title
+	st.interaction_radius = 6.5
+	st.position = Vector3(0, 0.5, 10.5)
+	hub.add_child(st)
+
+	return hub
 
 static func _create_windmill(mat_stone: Material, mat_roof: Material, mat_wood: Material, speed: float) -> Node3D:
 	var root = Node3D.new()

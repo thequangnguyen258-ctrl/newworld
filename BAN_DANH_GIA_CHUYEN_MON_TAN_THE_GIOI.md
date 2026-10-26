@@ -162,3 +162,19 @@ Toàn bộ **22 hạng mục kỹ thuật** thuộc Kế Hoạch Triển Khai Ki
 | **Camera Điện Ảnh & VRM Spring Bones** | 4 Rigs Phantom Camera 3D, bọc an toàn `look_at()`, clamp delta vật lý tóc & vạt áo măng tô. | [`test_vrm_and_phantom_camera.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/scripts/tests/test_vrm_and_phantom_camera.gd) | **PASS** |
 | **Giám Sát Vận Hành Thế Giới 150 Frames** | 99 chunks địa hình, 309 NPC phân tầng Tiered LOD (cho Iris Xe), 5 Buggy, 1 Heli, 128 trạm. | [`test_runtime_world_health.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/scripts/tests/test_runtime_world_health.gd) | **PASS** |
 
+---
+
+## 7. TRIỂN KHAI HOÀN TẤT LỘ TRÌNH MỞ RỘNG (EXP-01 ĐẾN EXP-07)
+
+Toàn bộ **7/7 đề xuất tính năng mở rộng** thuộc Mục 7 Kế Hoạch Triển Khai đã được xây dựng hoàn thiện và kiểm thử thực tế 100%:
+
+| Mã Đề Xuất | Tên Tính Năng Mở Rộng | Quy Chuẩn Thiết Kế Đã Hoàn Thành | Trạng Thái Kiểm Thử |
+| :--- | :--- | :--- | :---: |
+| **EXP-01** | **4 Tòa Trụ Sở Vệ Tinh Huyện (Satellite Hubs)** | Xây dựng 4 tòa nhà 4 tầng tân cổ điển tại Huyện Đông, Tây, Bắc, Nam; tích hợp bàn làm việc, hội trường hành chính và trạm `InteractiveStation`. | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-02** | **Đội Xe Bus Điện BRT Mạng Nhện** | Đội 8 xe bus điện BRT Toon chạy tuần hoàn trên 4 trục nan hoa, đón trả khách tại 12 trạm trung chuyển, hỗ trợ lên/xuống `[E]`/`[F]` và nhảy nhanh `[1]`-`[4]`. | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-03** | **Chuỗi Cung Ứng Thi Công HousingPlot** | Kích hoạt chu kỳ `AVAILABLE` $\rightarrow$ `CONSTRUCTION (50%)` $\rightarrow$ `COMPLETED (100%)`, liên kết kho vật liệu gỗ/thép `LogisticsManager`. | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-04** | **Nhà Ga Đón Tàu Lữ Khách & Nhập Cư** | Trạm đón tàu lữ khách tại Cảng Hòa Bình (+20.000m), kích hoạt quy trình nhập tịch, cấp CCCD và nâng trần dân số. | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-05** | **4 Mùa Sinh Thái & Thời Tiết Động Ghibli** | Chu kỳ 4 Mùa (Xuân/Hạ/Thu/Đông) 7 ngày game, điều chỉnh sắc độ bầu trời/sương mù Toon và hệ số sản lượng nông/lâm/ngư nghiệp (+20% đến +30%). | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-06** | **Bộ Tổng Hợp Âm Đa Bè (Pipe Organ / Piano)** | Tổng hợp hòa âm đa tần số cho Đàn Đại Quản Cầm (Tầng 11) và Grand Piano (Tầng 9), ban phước lành buff `+15% KBU`. | **PASS** ([`test_expansions_e2e.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/test_expansions_e2e.gd)) |
+| **EXP-07** | **Bộ Kiểm Thử Đầu-Cuối E2E Tự Động** | File runner tự động xác thực 5 chuẩn khắt khe: 81 chunks, tua đêm 06:00, chống âm ngân sách, cao độ Metro mặt đất, player collision layer = 2. | **PASS** ([`run_all_e2e_tests.gd`](file:///d:/Eaut/GMAE/game%20t%C3%A2n%20th%E1%BA%BF%20gi%E1%BB%9Bi/tests/run_all_e2e_tests.gd)) |
+

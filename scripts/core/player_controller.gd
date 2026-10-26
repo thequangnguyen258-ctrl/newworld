@@ -467,7 +467,7 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 		return
 
-	var life_hud := get_tree().get_first_node_in_group("hud")
+	var life_hud: Node = get_tree().get_first_node_in_group("hud") if is_inside_tree() and get_tree() != null else null
 	if life_hud and life_hud.has_method("is_life_activity_options_open") and life_hud.is_life_activity_options_open():
 		if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE):
 			life_hud.close_life_activity_options()

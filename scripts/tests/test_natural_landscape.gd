@@ -5,6 +5,9 @@ const AssemblerScript = preload("res://scripts/terrain/natural_landscape_assembl
 const PlayerControllerScript = preload("res://scripts/core/player_controller.gd")
 
 func _init() -> void:
+	call_deferred("_run_test")
+
+func _run_test() -> void:
 	print("=================================================================")
 	print("🌿 BẮT ĐẦU KIỂM THỬ: BẢN ĐỒ THIÊN NHIÊN 5x5 CHUNKS (320m x 320m)")
 	print("=================================================================")

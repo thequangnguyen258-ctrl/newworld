@@ -109,6 +109,18 @@ func skip_to_morning() -> void:
 func _apply_time_of_day(hours: float) -> void:
 	var atmosphere = evaluate_atmosphere(hours)
 	
+	# EXP-05: Điều chỉnh sắc độ theo mùa Ghibli (Spring, Summer, Autumn, Winter)
+	var wm = _get_world_manager()
+	if wm and "current_season" in wm:
+		match wm.current_season:
+			1: # Mùa Hạ: Nắng vàng rực rỡ
+				atmosphere["light_energy"] *= 1.08
+			2: # Mùa Thu: Tông cam hổ phách ấm áp
+				atmosphere["horizon_color"] = atmosphere["horizon_color"].lerp(Color(0.95, 0.55, 0.25), 0.20)
+			3: # Mùa Đông: Sương mù thanh khiết trên núi
+				atmosphere["fog_density"] *= 1.30
+				atmosphere["fog_color"] = atmosphere["fog_color"].lerp(Color(0.85, 0.90, 0.98), 0.25)
+
 	# 1. Cập nhật góc quay của Mặt Trời / Mặt Trăng
 	_update_sun_rotation(hours, atmosphere)
 	

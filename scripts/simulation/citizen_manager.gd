@@ -425,6 +425,25 @@ func try_birth_or_immigrate_citizen(new_citizen: CitizenData) -> bool:
 		print("[CitizenManager] 🛑 ĐẠT TRẦN DÂN SỐ %d NGƯỜI: Toàn thành phố dừng sinh sản và nhập cư tạm thời." % current_population_cap)
 	return true
 
+## EXP-04: Đón nhận nhóm công dân nhập cư qua tàu biển hoặc cấp mới
+func spawn_immigrant_batch(count: int = 3) -> int:
+	var spawned: int = 0
+	for i in range(count):
+		if citizen_registry.size() >= current_population_cap:
+			current_population_cap += 2
+			is_reproduction_halted = false
+		var new_id = 1000 + citizen_registry.size()
+		var name_text = _build_vietnamese_name(new_id)
+		var age_value = randi_range(20, 50)
+		var c = CitizenData.new(str(new_id), name_text, age_value)
+		c.home_district_id = "DISTRICT_SOUTH_COAST"
+		c.workplace_district_id = "DISTRICT_SOUTH_COAST"
+		c.preferred_transit_mode = 2
+		if try_birth_or_immigrate_citizen(c):
+			spawned += 1
+	print("[CitizenManager] 🚢 Đã đón nhận thành công %d công dân mới cập Cảng Hòa Bình!" % spawned)
+	return spawned
+
 ## Tổng số cư dân hiện tại trong RAM
 func get_total_population() -> int:
 	return citizen_registry.size()

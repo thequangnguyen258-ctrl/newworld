@@ -323,6 +323,19 @@ func interact(player: Node3D) -> void:
 					audio_synth.play_fanfare_sound(player)
 				if hud and hud.has_method("show_toast"):
 					hud.show_toast("☕ [Cloud Cafe Skydeck] Thưởng thức cà phê ngắm mây ở độ cao +130m, hồi phục 100% sinh lực!")
+			elif station_id.begins_with("satellite_hub"):
+				if player:
+					if player.has_method("heal"):
+						player.heal(100.0)
+					if player.has_method("restore_stamina"):
+						player.restore_stamina(100.0)
+				if wm:
+					wm.deposit_city_tax(1000.0)
+				var audio_synth = get_node_or_null("/root/AudioSynthesizer")
+				if audio_synth and audio_synth.has_method("play_fanfare_sound"):
+					audio_synth.play_fanfare_sound(player)
+				if hud and hud.has_method("show_toast"):
+					hud.show_toast("🏛️ [Tòa Vệ Tinh] Đã đồng bộ hồ sơ hành chính & lịch nhóm họp tại %s! (+1.000Đ & 100%% HP)" % title_name)
 			else:
 				if wm:
 					wm.deposit_city_tax(5000.0)
@@ -427,6 +440,18 @@ func interact(player: Node3D) -> void:
 				hud.show_toast("Cặp mang theo đã đầy; hãy cất bớt đồ trước khi nhận khối pin.")
 
 		StationType.SOUTH_PORT:
+			if station_id == "passenger_ship_terminal":
+				var cit_mgr = get_node_or_null("/root/CitizenManager")
+				var new_cnt = 0
+				if cit_mgr and cit_mgr.has_method("spawn_immigrant_batch"):
+					new_cnt = cit_mgr.spawn_immigrant_batch(3)
+				var audio_synth = get_node_or_null("/root/AudioSynthesizer")
+				if audio_synth and audio_synth.has_method("play_fanfare_sound"):
+					audio_synth.play_fanfare_sound(player)
+				if hud and hud.has_method("show_toast"):
+					hud.show_toast("🚢 [Cảng Hòa Bình] Chuyến tàu lữ khách cập bến! Đã tiếp nhận %d công dân mới và cấp thẻ CCCD!" % new_cnt)
+				return
+
 			var inv_mgr = preload("res://scripts/economy/inventory_manager.gd")
 			if inv_mgr.add_item("item_fresh_fish", 1):
 				var audio_synth = get_node_or_null("/root/AudioSynthesizer")

@@ -33,6 +33,19 @@ var current_hour: int = 11
 var current_minute: int = 30
 var second_accumulator: float = 0.0
 
+# EXP-05: Hệ Thống 4 Mùa & Thời Tiết Động Ghibli
+enum SeasonType { SPRING, SUMMER, AUTUMN, WINTER }
+const SEASON_NAMES: Array[String] = [
+	"Mùa Xuân (Sinh Chồi & Dược Thảo)",
+	"Mùa Hạ (Biển & Năng Lượng Xanh)",
+	"Mùa Thu (Mùa Màng & Gặt Hái)",
+	"Mùa Đông (Thanh Bình & Sương Mù)"
+]
+var current_season: int = 0
+var total_days_passed: int = 0
+
+signal season_changed(season_index: int, season_name: String)
+
 var is_liturgy_active: bool = false
 var current_time_slot: int = -1
 
@@ -59,6 +72,12 @@ func _advance_one_minute() -> void:
 		if current_hour >= 24:
 			current_hour = 0
 			current_day_index = (current_day_index + 1) % 7
+			total_days_passed += 1
+			var new_season = (total_days_passed / 7) % 4
+			if new_season != current_season:
+				current_season = new_season
+				season_changed.emit(current_season, SEASON_NAMES[current_season])
+				print("[WorldManager] 🌸 CHUYỂN MÙA: Chào đón %s!" % SEASON_NAMES[current_season])
 			
 	var server = _get_timeline_server()
 	if server and server.has_method("on_game_minute_advanced"):
@@ -149,7 +168,9 @@ func get_save_state() -> Dictionary:
 		"second_accumulator": second_accumulator,
 		"treasury_city": treasury_city,
 		"fund_tithe_church": fund_tithe_church,
-		"total_game_minutes": total_game_minutes
+		"total_game_minutes": total_game_minutes,
+		"current_season": current_season,
+		"total_days_passed": total_days_passed
 	}
 
 func validate_saved_state(state: Dictionary) -> bool:
@@ -181,6 +202,10 @@ func apply_saved_state(state: Dictionary) -> bool:
 	second_accumulator = float(state["second_accumulator"])
 	treasury_city = float(state["treasury_city"])
 	fund_tithe_church = float(state["fund_tithe_church"])
+	if state.has("current_season"):
+		current_season = int(state["current_season"])
+	if state.has("total_days_passed"):
+		total_days_passed = int(state["total_days_passed"])
 	var server := _get_timeline_server()
 	if server != null and int(state["total_game_minutes"]) >= 0:
 		server.set("total_game_minutes", int(state["total_game_minutes"]))
@@ -194,6 +219,21 @@ func apply_saved_state(state: Dictionary) -> bool:
 	_check_time_slot_change()
 	_check_liturgy_schedule(DAY_NAMES[current_day_index])
 	return true
+
+func get_season_name() -> String:
+	return SEASON_NAMES[current_season]
+
+func get_season_production_multiplier(district_id: String) -> float:
+	match current_season:
+		SeasonType.SPRING:
+			return 1.20 if district_id == "DISTRICT_NORTH_FOREST" else 1.0
+		SeasonType.SUMMER:
+			return 1.25 if district_id == "DISTRICT_SOUTH_COAST" else 1.0
+		SeasonType.AUTUMN:
+			return 1.30 if district_id == "DISTRICT_EAST_AGRICULTURE" else 1.0
+		SeasonType.WINTER:
+			return 1.30 if district_id == "DISTRICT_WEST_INDUSTRY" else 1.0
+	return 1.0
 
 func get_formatted_time() -> String:
 	return "%s - %02d:%02d" % [DAY_NAMES[current_day_index], current_hour, current_minute]

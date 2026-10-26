@@ -31,7 +31,9 @@ $tests = @(
     'res://scripts/tests/test_has_research_tech_tree.gd',
     'res://scripts/tests/test_save_load.gd',
     'res://scripts/tests/test_player_stamina.gd',
-    'res://scripts/tests/test_player_daily_rest.gd'
+    'res://scripts/tests/test_player_daily_rest.gd',
+    'res://tests/test_expansions_e2e.gd',
+    'res://tests/run_all_e2e_tests.gd'
 )
 $passed = 0
 $failed = 0

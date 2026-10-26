@@ -128,6 +128,27 @@ static func _fill_buffer_for_sound(playback: AudioStreamGeneratorPlayback, sound
 				var sample = (sin(TAU * 880.0 * t) * 0.3 + sin(TAU * 1320.0 * t) * 0.2) * decay
 				playback.push_frame(Vector2(sample, sample))
 
+		"organ":
+			# EXP-06: Đàn Đại Quản Cầm (Pipe Organ): Trầm bổng uy nghiêm (261.6Hz C4 + 523.2Hz C5 + 784.8Hz G5)
+			var f1 = 261.63
+			var f2 = 523.25
+			var f3 = 783.99
+			for i in range(frames_to_push):
+				var t = float(i) / mix_rate
+				var env = clampf(t * 15.0, 0.0, 1.0) * exp(-t * 1.5)
+				var sample = (sin(TAU * f1 * t) * 0.45 + sin(TAU * f2 * t) * 0.35 + sin(TAU * f3 * t) * 0.20) * env
+				playback.push_frame(Vector2(sample, sample))
+
+		"piano":
+			# EXP-06: Đại Dương Cầm (Grand Piano): Thanh tao, ngân vang trong sáng
+			var f1 = 440.0
+			var f2 = 880.0
+			for i in range(frames_to_push):
+				var t = float(i) / mix_rate
+				var decay = exp(-t * 2.8)
+				var sample = (sin(TAU * f1 * t) * 0.70 + sin(TAU * f2 * t) * 0.30) * decay * 0.6
+				playback.push_frame(Vector2(sample, sample))
+
 		_:
 			for i in range(frames_to_push):
 				playback.push_frame(Vector2.ZERO)
@@ -164,5 +185,25 @@ func play_briefcase_close_sound(parent: Node = null) -> void:
 func play_storage_transfer_sound(parent: Node = null) -> void:
 	var target = parent if (parent and is_instance_valid(parent)) else self
 	play_sound(target, "storage_transfer")
+
+## EXP-06: Phát tiến trình hòa âm đa bè cho Đàn Đại Quản Cầm / Grand Piano
+static func play_polyphonic_progression(parent: Node, instrument: String = "organ", pos: Vector3 = Vector3.ZERO) -> void:
+	play_sound(parent, instrument, pos)
+	var tree = parent.get_tree() if (parent and is_instance_valid(parent)) else null
+	if tree != null:
+		var hud = tree.get_first_node_in_group("hud")
+		if hud and hud.has_method("show_toast"):
+			if instrument == "organ":
+				hud.show_toast("🎹 [Đại Quản Cầm Tầng 11] Giai điệu Thánh Ca uy nghiêm vang vọng! (+15% Tinh Thần & Sáng Tạo)", 4.5)
+			else:
+				hud.show_toast("🎹 [Grand Piano Ban Ca Ngợi] Bản giao hưởng êm dịu sưởi ấm tâm hồn toàn đô thị! (+15% KBU)", 4.5)
+
+func play_organ_sound(parent: Node = null) -> void:
+	var target = parent if (parent and is_instance_valid(parent)) else self
+	play_polyphonic_progression(target, "organ")
+
+func play_piano_sound(parent: Node = null) -> void:
+	var target = parent if (parent and is_instance_valid(parent)) else self
+	play_polyphonic_progression(target, "piano")
 
 
