@@ -23,6 +23,8 @@ class VintageTramCar extends Node3D:
 	var station_dwell_seconds: float = 2.5
 	var dwell_remaining: float = 2.5
 	var passenger_ref: Node3D = null
+	var _saved_passenger_layer: int = 2
+	var _saved_passenger_mask: int = 1
 
 	func _ready() -> void:
 		add_to_group("trams")
@@ -61,6 +63,11 @@ class VintageTramCar extends Node3D:
 			return false
 
 		passenger_ref = player
+		if player is CollisionObject3D:
+			_saved_passenger_layer = player.collision_layer
+			_saved_passenger_mask = player.collision_mask
+			player.collision_layer = 0
+			player.collision_mask = 0
 		player.visible = false
 		player.set_physics_process(false)
 		player.set_meta("occupied_tram", self)
@@ -82,6 +89,9 @@ class VintageTramCar extends Node3D:
 		passenger_ref = null
 		passenger.global_position = global_position + global_transform.basis.x * 3.5 + Vector3(0.0, 0.5, 0.0)
 		passenger.global_rotation.y = global_rotation.y
+		if passenger is CollisionObject3D:
+			passenger.collision_layer = _saved_passenger_layer if _saved_passenger_layer != 0 else 2
+			passenger.collision_mask = _saved_passenger_mask if _saved_passenger_mask != 0 else 1
 		passenger.visible = true
 		passenger.set_physics_process(true)
 		if passenger.has_meta("occupied_tram"):

@@ -384,13 +384,20 @@ func apply_saved_state(state: Dictionary) -> bool:
 		return false
 	for location_id in locations:
 		locations[location_id]["inventory"] = state["location_inventories"][location_id].duplicate(true)
+	shipments = state["shipments"].duplicate(true)
+	next_shipment_number = int(state["next_shipment_number"])
 	for truck_id in trucks:
 		var truck_state: Dictionary = state["truck_states"][truck_id]
 		trucks[truck_id]["status"] = truck_state["status"]
 		trucks[truck_id]["current_location_id"] = truck_state["current_location_id"]
 		trucks[truck_id]["shipment_id"] = truck_state["shipment_id"]
-	shipments = state["shipments"].duplicate(true)
-	next_shipment_number = int(state["next_shipment_number"])
+		var tv: Node3D = truck_visuals.get(truck_id) as Node3D
+		if tv != null and is_instance_valid(tv):
+			if truck_state["status"] == "in_transit":
+				_begin_visual_shipment(str(truck_state["shipment_id"]))
+			else:
+				var loc_km: Vector2 = locations[truck_state["current_location_id"]]["position_km"]
+				tv.call("set_idle_location", loc_km * 1000.0)
 	return true
 
 func get_suitable_truck_class(weight_kg: float) -> String:
@@ -428,8 +435,14 @@ func _dispatch_pending_shipments() -> void:
 			truck_position.distance_to(origin_position)
 			+ origin_position.distance_to(destination_position)
 		) * 1.2
-		var travel_game_minutes := distance_km / float(truck["speed_kmh"]) * 60.0
-		var total_game_minutes := travel_game_minutes + 20.0
+		var scm_boost: float = 0.0
+		if is_inside_tree():
+			var research_mgr = get_node_or_null("/root/ResearchManager")
+			if research_mgr != null and research_mgr.has_method("get_scram_logistics_boost"):
+				scm_boost = clampf(float(research_mgr.get_scram_logistics_boost()), 0.0, 0.5)
+		var speed_mult: float = 1.0 + scm_boost
+		var travel_game_minutes := (distance_km / (float(truck["speed_kmh"]) * speed_mult)) * 60.0
+		var total_game_minutes := travel_game_minutes + (20.0 / speed_mult)
 		shipment["status"] = "in_transit"
 		shipment["truck_id"] = truck_id
 		shipment["driver_id"] = truck["driver_id"]

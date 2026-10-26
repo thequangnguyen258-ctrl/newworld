@@ -61,10 +61,18 @@ class MetroTrainCar extends Node3D:
 					next_station = station_x
 		return next_station
 
+	var _saved_passenger_layer: int = 2
+	var _saved_passenger_mask: int = 1
+
 	func board_from_platform(player: Node3D, platform_position: Vector3) -> bool:
 		if passenger_ref != null or dwell_remaining <= 0.0 or global_position.distance_to(platform_position) > 12.0:
 			return false
 		passenger_ref = player
+		if player is CollisionObject3D:
+			_saved_passenger_layer = player.collision_layer
+			_saved_passenger_mask = player.collision_mask
+			player.collision_layer = 0
+			player.collision_mask = 0
 		player.visible = false
 		player.set_physics_process(false)
 		player.set_meta("occupied_metro", self)
@@ -83,6 +91,9 @@ class MetroTrainCar extends Node3D:
 		var platform_position = Vector3(position.x, 0.5, platform_side * 8.3)
 		passenger.global_position = get_parent().global_transform * platform_position
 		passenger.global_rotation.y = global_rotation.y
+		if passenger is CollisionObject3D:
+			passenger.collision_layer = _saved_passenger_layer if _saved_passenger_layer != 0 else 2
+			passenger.collision_mask = _saved_passenger_mask if _saved_passenger_mask != 0 else 1
 		passenger.visible = true
 		passenger.set_physics_process(true)
 		if passenger.has_meta("occupied_metro"):
@@ -346,7 +357,11 @@ static func _build_route_stations(
 		)
 		station_site.add_child(underground_access)
 
-		var surface_position = Vector3(route_x * cos(axis_angle), 0.0, -route_x * sin(axis_angle))
+		var world_sx: float = route_x * cos(axis_angle)
+		var world_sz: float = -route_x * sin(axis_angle)
+		var ground_world_y: float = ModularNatureChunk.get_world_height(world_sx, world_sz)
+		var local_surface_y: float = ground_world_y - ModularNatureChunk.PLATEAU_ALTITUDE
+		var surface_position = Vector3(world_sx, local_surface_y, world_sz)
 		var entrance = Node3D.new()
 		entrance.name = "MetroSurfaceEntrance_B%d_%02d" % [floor_number, station_index + 1]
 		entrance.position = surface_position

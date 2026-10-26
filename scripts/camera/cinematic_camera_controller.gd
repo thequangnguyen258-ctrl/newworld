@@ -107,7 +107,9 @@ func _process(delta: float) -> void:
 				var offset = Vector3(sin(yaw), 0, cos(yaw)) * player_follow_distance
 				var target_cam_pos = p_pos + offset + Vector3(0, player_follow_height, 0)
 				pcam_player.global_position = pcam_player.global_position.lerp(target_cam_pos, delta * 12.0)
-				pcam_player.look_at(p_pos + Vector3(0, 1.2, 0), Vector3.UP)
+				var look_tgt = p_pos + Vector3(0, 1.2, 0)
+				if pcam_player.global_position.distance_squared_to(look_tgt) > 0.01:
+					pcam_player.look_at(look_tgt, Vector3.UP)
 
 		CameraState.VEHICLE_CRUISE:
 			if target_vehicle and is_instance_valid(target_vehicle):
@@ -118,7 +120,9 @@ func _process(delta: float) -> void:
 				var h_offset = 6.0 if is_heli else 2.5
 				var target_pos = v_pos - v_basis.z * dist + Vector3(0, h_offset, 0)
 				pcam_vehicle.global_position = pcam_vehicle.global_position.lerp(target_pos, delta * 8.0)
-				pcam_vehicle.look_at(v_pos + Vector3(0, 1.0, 0), Vector3.UP)
+				var v_look_tgt = v_pos + Vector3(0, 1.0, 0)
+				if pcam_vehicle.global_position.distance_squared_to(v_look_tgt) > 0.01:
+					pcam_vehicle.look_at(v_look_tgt, Vector3.UP)
 
 		CameraState.CIVIC_VISTA:
 			if vista_timer > 0.0:

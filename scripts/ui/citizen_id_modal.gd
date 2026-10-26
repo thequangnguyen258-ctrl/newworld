@@ -60,6 +60,8 @@ func display_citizen(npc: NPCCharacter) -> void:
 	age_label.text = "%s (%s)" % [age_str, npc.gender]
 	job_label.text = npc.job_title
 	cert_label.text = "Chứng chỉ số: %s" % npc.cert_code
+	if skill_label:
+		skill_label.text = "Cấp độ tay nghề: Cấp %d / 10" % npc.skill_level
 	var act_info = ""
 	if "current_activity" in npc and npc.current_activity != "":
 		act_info = "\n🕒 Sinh hoạt: %s %s (%s)" % [npc.current_activity_icon, npc.current_activity, npc.current_slot_name]

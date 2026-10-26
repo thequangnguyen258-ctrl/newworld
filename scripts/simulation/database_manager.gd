@@ -27,7 +27,10 @@ func _init_database() -> void:
 		return
 		
 	is_db_open = true
-	print("[DatabaseManager] 🗄️ Mở thành công cơ sở dữ liệu SQLite tại: %s" % DB_PATH)
+	db.query("PRAGMA journal_mode=WAL;")
+	db.query("PRAGMA synchronous=NORMAL;")
+	db.query("PRAGMA foreign_keys=ON;")
+	print("[DatabaseManager] 🗄️ Mở thành công cơ sở dữ liệu SQLite (WAL Mode) tại: %s" % DB_PATH)
 	_create_schema()
 
 func _create_schema() -> void:
@@ -367,18 +370,18 @@ func save_housing_plot(plot: Dictionary) -> bool:
 		land_deed_number=excluded.land_deed_number,
 		construction_progress=excluded.construction_progress;
 	""" % [
-		plot.get("plot_id", ""),
-		plot.get("district_id", "DISTRICT_PLATEAU_CORE"),
-		plot.get("house_type", "STUDIO_APARTMENT"),
-		plot.get("title", ""),
-		stat,
-		plot.get("owner_id", ""),
+		str(plot.get("plot_id", "")).replace("'", "''"),
+		str(plot.get("district_id", "DISTRICT_PLATEAU_CORE")).replace("'", "''"),
+		str(plot.get("house_type", "STUDIO_APARTMENT")).replace("'", "''"),
+		str(plot.get("title", "")).replace("'", "''"),
+		stat.replace("'", "''"),
+		str(plot.get("owner_id", "")).replace("'", "''"),
 		plot.get("price", 1500.0),
 		plot.get("area_sqm", 80.0),
 		plot.get("pos_x", 0.0),
 		plot.get("pos_y", 600.0),
 		plot.get("pos_z", 0.0),
-		deed,
+		str(deed).replace("'", "''"),
 		progress
 	]
 	return db.query(sql)
@@ -394,10 +397,14 @@ func update_plot_status(plot_id: String, new_status: String, owner_id: String = 
 		progress = 100.0
 
 	var sql = ""
+	var safe_status = new_status.replace("'", "''")
+	var safe_owner = owner_id.replace("'", "''")
+	var safe_deed = deed_no.replace("'", "''")
+	var safe_plot_id = plot_id.replace("'", "''")
 	if deed_no.is_empty():
-		sql = "UPDATE housing_plots SET status = '%s', owner_id = '%s', construction_progress = %.1f WHERE plot_id = '%s';" % [new_status, owner_id, progress, plot_id]
+		sql = "UPDATE housing_plots SET status = '%s', owner_id = '%s', construction_progress = %.1f WHERE plot_id = '%s';" % [safe_status, safe_owner, progress, safe_plot_id]
 	else:
-		sql = "UPDATE housing_plots SET status = '%s', owner_id = '%s', land_deed_number = '%s', construction_progress = %.1f WHERE plot_id = '%s';" % [new_status, owner_id, deed_no, progress, plot_id]
+		sql = "UPDATE housing_plots SET status = '%s', owner_id = '%s', land_deed_number = '%s', construction_progress = %.1f WHERE plot_id = '%s';" % [safe_status, safe_owner, safe_deed, progress, safe_plot_id]
 	return db.query(sql)
 
 ## Truy vấn tất cả các lô đất nhà ở

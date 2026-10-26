@@ -218,7 +218,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var key = event.physical_keycode if event.physical_keycode != 0 else event.keycode
 		if key == KEY_E or key == KEY_F:
 			var player = get_tree().get_first_node_in_group("player")
-			if player:
+			if player and (not player.has_meta("nearby_interactive") or player.get_meta("nearby_interactive") == self):
 				interact(player)
 				get_viewport().set_input_as_handled()
 

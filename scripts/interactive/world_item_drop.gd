@@ -163,7 +163,10 @@ func _process(delta: float) -> void:
 				prompt_label.visible = is_player_nearby
 
 func _unhandled_input(event: InputEvent) -> void:
-	if is_player_nearby and event.is_action_pressed("interact") or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E)):
+	if not is_player_nearby:
+		return
+	var is_e_key: bool = event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_E or event.physical_keycode == KEY_E)
+	if event.is_action_pressed("interact") or is_e_key:
 		pickup_item()
 		get_viewport().set_input_as_handled()
 

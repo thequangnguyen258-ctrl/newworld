@@ -25,8 +25,12 @@ static func get_or_create_pine_atlas() -> OctaAtlas:
 		return _cached_atlas
 
 	# 1. Thử nạp từ file đã lưu
-	if ResourceLoader.exists(ATLAS_SAVE_PATH):
-		var res = load(ATLAS_SAVE_PATH) as OctaAtlas
+	var save_path = ATLAS_SAVE_PATH
+	if not OS.has_feature("editor") and not ResourceLoader.exists(save_path):
+		save_path = "user://pine_tree_octa_atlas.res"
+
+	if ResourceLoader.exists(save_path):
+		var res = load(save_path) as OctaAtlas
 		if res != null:
 			_cached_atlas = res
 			return _cached_atlas
@@ -35,9 +39,13 @@ static func get_or_create_pine_atlas() -> OctaAtlas:
 	_cached_atlas = generate_pine_atlas_resource()
 	
 	# Lưu lại để dùng lâu dài cho toàn bộ dự án
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://assets/impostors"))
-	ResourceSaver.save(_cached_atlas, ATLAS_SAVE_PATH, ResourceSaver.FLAG_COMPRESS)
-	print("[OctahedralPineLOD] 🌲 Đã khởi tạo và lưu trữ thành công Pine OctaAtlas tại: %s" % ATLAS_SAVE_PATH)
+	if OS.has_feature("editor"):
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://assets/impostors"))
+		ResourceSaver.save(_cached_atlas, ATLAS_SAVE_PATH, ResourceSaver.FLAG_COMPRESS)
+		print("[OctahedralPineLOD] 🌲 Đã khởi tạo và lưu trữ thành công Pine OctaAtlas tại: %s" % ATLAS_SAVE_PATH)
+	else:
+		ResourceSaver.save(_cached_atlas, "user://pine_tree_octa_atlas.res", ResourceSaver.FLAG_COMPRESS)
+		print("[OctahedralPineLOD] 🌲 Đã khởi tạo và lưu trữ runtime Pine OctaAtlas tại user://pine_tree_octa_atlas.res")
 	return _cached_atlas
 
 ## Tạo đối tượng OctaAtlas với texture nướng chuẩn toán học cho cây thông 3 tầng

@@ -93,14 +93,15 @@ func _process(_delta: float) -> void:
 	if player_ref and is_instance_valid(player_ref):
 		var dist = global_position.distance_to(player_ref.global_position)
 		var should_be_in_range = dist <= interaction_radius
-		if should_be_in_range != player_in_range:
-			player_in_range = should_be_in_range
-			prompt_label.visible = player_in_range
-			if player_in_range:
+		player_in_range = should_be_in_range
+		prompt_label.visible = player_in_range
+		if player_in_range:
+			var cur_st = player_ref.get_meta("nearby_interactive") if player_ref.has_meta("nearby_interactive") else null
+			if not is_instance_valid(cur_st) or cur_st == self or dist < global_position.distance_to(cur_st.global_position):
 				player_ref.set_meta("nearby_interactive", self)
-			else:
-				if player_ref.has_meta("nearby_interactive") and player_ref.get_meta("nearby_interactive") == self:
-					player_ref.remove_meta("nearby_interactive")
+		else:
+			if player_ref.has_meta("nearby_interactive") and player_ref.get_meta("nearby_interactive") == self:
+				player_ref.remove_meta("nearby_interactive")
 
 func _on_world_time_ticked(day_index: int, hour: int, minute: int, _day_name: String) -> void:
 	_refresh_facility_schedule(day_index, hour, minute)

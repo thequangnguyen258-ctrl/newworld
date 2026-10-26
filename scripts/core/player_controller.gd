@@ -570,12 +570,20 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		elif is_inside_tree():
-			# Fallback cự ly an toàn cho Interactive Station
+			# Fallback cự ly an toàn cho Interactive Station: Luôn chọn trạm gần nhất
+			var nearest_st = null
+			var min_dist: float = 999999.0
 			for st in get_tree().get_nodes_in_group("interactive_stations"):
-				if is_instance_valid(st) and global_position.distance_to(st.global_position) <= st.interaction_radius:
-					st.interact(self)
-					get_viewport().set_input_as_handled()
-					return
+				if is_instance_valid(st):
+					var r_max: float = st.interaction_radius if "interaction_radius" in st else 6.0
+					var dist = global_position.distance_to(st.global_position)
+					if dist <= r_max and dist < min_dist:
+						min_dist = dist
+						nearest_st = st
+			if nearest_st and nearest_st.has_method("interact"):
+				nearest_st.interact(self)
+				get_viewport().set_input_as_handled()
+				return
 
 	# 6. Phím [M] hoặc [Tab] mở/đóng Tablet Bản Đồ Toàn Cảnh 500 km²
 	if event is InputEventKey and event.pressed and not event.echo:

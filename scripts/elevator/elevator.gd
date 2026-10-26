@@ -291,18 +291,19 @@ func _process(_delta: float) -> void:
 		var in_height = (p_pos.y >= global_position.y - 45.0 and p_pos.y <= global_position.y + 205.0)
 		var should_be_in_range = (dist_xz <= interaction_radius and in_height)
 		
-		if should_be_in_range != is_in_range:
-			is_in_range = should_be_in_range
-			prompt_label.visible = is_in_range
-			if is_in_range:
-				prompt_label.global_position.y = p_pos.y + 2.2
+		is_in_range = should_be_in_range
+		prompt_label.visible = is_in_range
+		if is_in_range:
+			prompt_label.global_position.y = p_pos.y + 2.2
+			var cur_elev = player_ref.get_meta("nearby_elevator") if player_ref.has_meta("nearby_elevator") else null
+			if not is_instance_valid(cur_elev) or cur_elev == self or dist_xz < Vector2(p_pos.x - cur_elev.global_position.x, p_pos.z - cur_elev.global_position.z).length():
 				player_ref.set_meta("nearby_elevator", self)
 				player_ref.set_meta("nearby_interactive", self)
-			else:
-				if player_ref.has_meta("nearby_elevator") and player_ref.get_meta("nearby_elevator") == self:
-					player_ref.remove_meta("nearby_elevator")
-				if player_ref.has_meta("nearby_interactive") and player_ref.get_meta("nearby_interactive") == self:
-					player_ref.remove_meta("nearby_interactive")
+		else:
+			if player_ref.has_meta("nearby_elevator") and player_ref.get_meta("nearby_elevator") == self:
+				player_ref.remove_meta("nearby_elevator")
+			if player_ref.has_meta("nearby_interactive") and player_ref.get_meta("nearby_interactive") == self:
+				player_ref.remove_meta("nearby_interactive")
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
@@ -328,6 +329,12 @@ func interact(player: Node) -> void:
 	if ui_modal:
 		ui_modal.visible = not ui_modal.visible
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE if ui_modal.visible else Input.MOUSE_MODE_CAPTURED)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if ui_modal and ui_modal.visible and event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
+			_close_ui()
+			get_viewport().set_input_as_handled()
 
 func _close_ui() -> void:
 	if ui_modal:

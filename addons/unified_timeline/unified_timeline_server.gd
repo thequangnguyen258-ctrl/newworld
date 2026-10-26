@@ -201,10 +201,22 @@ func _apply_offline_catchup(wm: Node, db: Node, added_minutes: int, real_seconds
 
 	# Đồng bộ tiến trình Nghiên cứu & Phát triển HAS (Offline R&D Progress Catch-Up)
 	var research_kbu_yield: int = 0
-	var research_mgr = get_node_or_null("/root/ResearchManager")
-	if research_mgr != null and research_mgr.has_method("apply_offline_research_progress"):
-		research_mgr.apply_offline_research_progress(added_minutes)
-		research_kbu_yield = added_minutes * 10
+	if is_inside_tree():
+		var research_mgr = get_node_or_null("/root/ResearchManager")
+		if research_mgr != null and research_mgr.has_method("apply_offline_research_progress"):
+			research_mgr.apply_offline_research_progress(added_minutes)
+			research_kbu_yield = added_minutes * 10
+
+		# Đồng bộ tiến trình Đội xe Logistics ngoại tuyến
+		var logistics_mgr = get_node_or_null("/root/LogisticsManager")
+		if logistics_mgr != null and logistics_mgr.has_method("advance_game_minutes"):
+			logistics_mgr.advance_game_minutes(float(added_minutes))
+
+		# Đồng bộ vĩ mô Cư dân (Lương, Thuế, Dâng hiến & Độ bền vật dụng) khi qua ngày mới
+		if days_passed > 0:
+			var cm = get_tree().get_first_node_in_group("citizen_manager")
+			if cm != null and cm.has_method("tick_macro_simulation"):
+				cm.tick_macro_simulation(float(days_passed))
 
 	return {
 		"days_passed": days_passed,

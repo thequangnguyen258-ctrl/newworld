@@ -244,8 +244,9 @@ func set_expression(expr: ExpressionPreset, weight: float = 1.0) -> void:
 
 ## 4. VẬT LÝ SPRING BONE CHO TÓC & VẠT ÁO
 func _update_spring_bones(delta: float) -> void:
+	var safe_delta = clampf(delta, 0.001, 0.05)
 	var current_pos = global_position if is_inside_tree() else position
-	var world_vel = (current_pos - prev_world_pos) / maxf(delta, 0.001)
+	var world_vel = (current_pos - prev_world_pos) / safe_delta
 	prev_world_pos = current_pos
 
 	# Chuyển vận tốc thế giới sang không gian nhân vật
@@ -261,9 +262,9 @@ func _update_spring_bones(delta: float) -> void:
 
 	# Phương trình dao động điều hòa giảm chấn (Damped Harmonic Oscillator)
 	var force = (target_offset - hair_sway_offset) * (18.0 * spring_stiffness)
-	hair_sway_velocity += force * delta
-	hair_sway_velocity *= exp(-delta * 8.5) # Giảm chấn (Damping)
-	hair_sway_offset += hair_sway_velocity * delta
+	hair_sway_velocity += force * safe_delta
+	hair_sway_velocity *= exp(-safe_delta * 8.5) # Giảm chấn (Damping)
+	hair_sway_offset += hair_sway_velocity * safe_delta
 
 	# Áp dụng lên các lọn tóc
 	for h in hair_nodes:
