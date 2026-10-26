@@ -2,10 +2,15 @@
 chcp 65001 >nul
 title Kiem Thu Toan Bo - Tan The Gioi
 echo ================================================================
-echo 🧪 CHẠY TOÀN BỘ KIỂM THỬ TỰ ĐỘNG - TÂN THẾ GIỚI (25 BÀI TEST)
+echo 🧪 CHẠY TOÀN BỘ KIỂM THỬ TỰ ĐỘNG - TÂN THẾ GIỚI (32 BÀI TEST)
 echo ================================================================
 
 set GODOT_BIN="C:\Users\Admin\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.6.2-stable_win64_console.exe"
+set LOCALAPPDATA=%~dp0.godot_env
+set APPDATA=%~dp0.godot_env
+set USERPROFILE=%~dp0.godot_env
+set HOME=%~dp0.godot_env
+
 set FAILED_COUNT=0
 set PASSED_COUNT=0
 
@@ -34,15 +39,22 @@ call :run_test "Lịch Trình Sinh Hoạt 6 Khung Giờ Cư Dân 5 Huyện" "res
 call :run_test "Lưu / Nạp Vị Trí, Thời Gian, Ngân Khố & Nhà Ở" "res://scripts/tests/test_save_load.gd"
 call :run_test "Chạy Nước Rút, Hồi Thể Lực & Giới Hạn Khi Kiệt Sức" "res://scripts/tests/test_player_stamina.gd"
 call :run_test "Sinh Hoạt Hằng Ngày: Nghỉ Đêm & Hồi Phục Tại Giường" "res://scripts/tests/test_player_daily_rest.gd"
+call :run_test "Viện Hàn Lâm Khoa Học HAS & Tech Tree 100 Bậc" "res://scripts/tests/test_has_research_tech_tree.gd"
+call :run_test "Ga Metro Ngầm Trung Tâm 4 Tầng & Tàu Cao Tốc" "res://scripts/tests/test_central_metro_hub.gd"
+call :run_test "Đội Xe Logistics & Quản Trị Chuỗi Cung Ứng SCM" "res://scripts/tests/test_logistics_industry.gd"
+call :run_test "Máy Chủ Dòng Thời Gian Thống Nhất & Bù Trừ Ngoại Tuyến" "res://scripts/tests/test_unified_timeline.gd"
+call :run_test "Rừng Thông Octahedral Impostor LOD 1500 km²" "res://scripts/tests/test_octahedral_pine_lod.gd"
+call :run_test "Avatar VRM, MToon Shader & Phantom Camera 3D" "res://scripts/tests/test_vrm_and_phantom_camera.gd"
+call :run_test "Giám Sát Vận Hành Runtime Thế Giới Mở 150 Frames" "res://scripts/tests/test_runtime_world_health.gd"
 
 echo.
 echo ================================================================
 echo 📊 KẾT QUẢ TỔNG HỢP KIỂM THỬ:
-echo - Thành công: %PASSED_COUNT% / 25
-echo - Thất bại : %FAILED_COUNT% / 25
+echo - Thành công: %PASSED_COUNT% / 32
+echo - Thất bại : %FAILED_COUNT% / 32
 echo ================================================================
 if %FAILED_COUNT% EQU 0 (
-    echo 🎉 TOÀN BỘ 25 BÀI KIỂM THỬ ĐÃ ĐẠT 100%% PASS!
+    echo 🎉 TOÀN BỘ 32 BÀI KIỂM THỬ ĐÃ ĐẠT 100%% PASS!
 ) else (
     echo ❌ CÓ %FAILED_COUNT% BÀI TEST BỊ LỖI!
 )
